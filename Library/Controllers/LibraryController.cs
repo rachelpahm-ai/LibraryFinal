@@ -86,5 +86,26 @@ namespace Library.Controllers
             return View();
         }
 
+
+        // GET: Library/TestDatabase
+        // Kiểm tra kết nối Entity Framework với SQL Server
+        public ActionResult TestDatabase()
+        {
+            using (var db = new LibraryManagementEntities())
+            {
+                int totalBooks = db.Database
+                    .SqlQuery<int>(
+                        "SELECT COUNT(*) FROM dbo.Book"
+                    )
+                    .Single();
+
+                return Content(
+                    "Kết nối database thành công! " +
+                    "Tổng số sách: " + totalBooks
+                );
+            }
+        }
+
+
     }
 }
