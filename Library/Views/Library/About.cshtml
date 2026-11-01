@@ -1,0 +1,175 @@
+﻿
+@{
+    ViewBag.Title = "Giới thiệu thư viện";
+    Layout = "~/Views/Shared/LibraryLayout.cshtml";
+}
+
+<!-- PHẦN GIỚI THIỆU CHÍNH -->
+<section class="bn-hero">
+    <div>
+        <h1>Chào mừng đến với BookNest</h1>
+
+        <p>
+            BookNest - Không gian kết nối tri thức,
+            nơi mỗi cuốn sách mở ra một hành trình
+            khám phá và học hỏi mới.
+        </p>
+
+        <p>
+            Hệ thống thư viện BookNest được xây dựng
+            nhằm hỗ trợ sinh viên HUFLIT tìm kiếm,
+            tra cứu và quản lý tài nguyên sách
+            một cách thuận tiện.
+        </p>
+
+        <a href="@Url.Action("Index", "Library")"
+           class="bn-btn d-inline-block mt-3">
+            Khám phá kho sách
+        </a>
+    </div>
+
+    <div class="bn-panel">
+        <h2 class="h4 fw-bold">Về thư viện BookNest</h2>
+
+        <p>
+            BookNest là dự án xây dựng hệ thống
+            quản lý thư viện trực tuyến,
+            hướng đến việc số hóa các hoạt động
+            quản lý và khai thác tài nguyên sách.
+        </p>
+
+        <p>
+            Thông qua một giao diện trực quan,
+            người dùng có thể tiếp cận thông tin
+            sách và sử dụng các tiện ích thư viện
+            trên cùng một nền tảng.
+        </p>
+    </div>
+</section>
+
+<!-- SỨ MỆNH -->
+<section class="mb-5">
+    <div class="bn-panel">
+        <h2 class="h4 fw-bold">Sứ mệnh của chúng tôi</h2>
+
+        <p>
+            BookNest hướng đến việc xây dựng
+            một môi trường thư viện hiện đại,
+            thuận tiện và thân thiện với người dùng.
+        </p>
+
+        <p class="mb-0">
+            Hệ thống giúp đơn giản hóa quá trình
+            tìm kiếm tài liệu, hỗ trợ quản lý sách
+            và tạo điều kiện để sinh viên tiếp cận
+            tri thức dễ dàng hơn.
+        </p>
+    </div>
+</section>
+
+<!-- CHỨC NĂNG NỔI BẬT -->
+<section class="mb-5">
+    <h2 class="h4 fw-bold mb-4">
+        Các chức năng của hệ thống
+    </h2>
+
+    <div class="row g-4">
+
+        <!-- Chức năng 1 -->
+        <div class="col-md-4">
+            <div class="bn-panel h-100">
+                <h3 class="h5 fw-bold">
+                    Tra cứu sách
+                </h3>
+
+                <p>
+                    Tìm kiếm sách theo tên,
+                    tác giả hoặc thể loại,
+                    giúp người đọc dễ dàng
+                    tiếp cận tài liệu phù hợp.
+                </p>
+            </div>
+        </div>
+
+        <!-- Chức năng 2 -->
+        <div class="col-md-4">
+            <div class="bn-panel h-100">
+                <h3 class="h5 fw-bold">
+                    Quản lý thư viện
+                </h3>
+
+                <p>
+                    Hỗ trợ quản lý thông tin sách,
+                    thể loại, tác giả và thành viên,
+                    giúp việc quản lý dữ liệu
+                    trở nên khoa học hơn.
+                </p>
+            </div>
+        </div>
+
+        <!-- Chức năng 3 -->
+        <div class="col-md-4">
+            <div class="bn-panel h-100">
+                <h3 class="h5 fw-bold">
+                    Mượn và đặt trước sách
+                </h3>
+
+                <p>
+                    Hướng đến việc hỗ trợ
+                    đăng ký mượn, theo dõi
+                    phiếu mượn và đặt trước sách
+                    trực tuyến.
+                </p>
+            </div>
+        </div>
+
+    </div>
+</section>
+
+<!-- HƯỚNG DẪN SỬ DỤNG -->
+<section class="mb-5">
+    <div class="bn-panel">
+        <h2 class="h4 fw-bold mb-3">
+            Hướng dẫn sử dụng thư viện
+        </h2>
+
+        <ol class="mb-0">
+            <li class="mb-2">
+                Truy cập trang chủ BookNest.
+            </li>
+
+            <li class="mb-2">
+                Tìm kiếm sách theo tên hoặc tác giả.
+            </li>
+
+            <li class="mb-2">
+                Xem thông tin sách và số lượng
+                hiện có trong thư viện.
+            </li>
+
+            <li class="mb-2">
+                Khi các chức năng thành viên
+                được triển khai, người dùng
+                có thể đăng nhập, mượn
+                và đặt trước sách.
+            </li>
+        </ol>
+    </div>
+</section>
+
+<!-- KẾT THÚC -->
+<section class="bn-panel text-center">
+    <h2 class="h4 fw-bold">
+        Bắt đầu hành trình khám phá tri thức
+    </h2>
+
+    <p>
+        Khám phá những cuốn sách thú vị
+        tại thư viện BookNest ngay hôm nay.
+    </p>
+
+    <a href="@Url.Action("Index", "Library")"
+       class="bn-btn d-inline-block">
+        Xem danh sách sách
+    </a>
+</section>
