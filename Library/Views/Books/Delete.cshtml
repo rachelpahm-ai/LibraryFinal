@@ -1,89 +1,72 @@
 ﻿@model Library.Models.Book
 
 @{
-    ViewBag.Title = "Delete";
+    ViewBag.Title = "Xác nhận xóa sách";
     Layout = "~/Views/Shared/LibraryLayout.cshtml";
 }
 
-<h2>Delete</h2>
+<!-- TIÊU ĐỀ -->
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+    <div>
+        <h1 class="h3 fw-bold mb-1">Xác nhận xóa sách</h1>
+        <p class="text-muted mb-0">Kiểm tra thông tin trước khi xóa sách khỏi hệ thống.</p>
+    </div>
+    <a href="@Url.Action("Index", "Books")" class="btn btn-outline-secondary">Quay về danh sách</a>
+</div>
 
-<h3>Are you sure you want to delete this?</h3>
-<div>
-    <h4>Book</h4>
-    <hr />
-    <dl class="dl-horizontal">
-        <dt>
-            @Html.DisplayNameFor(model => model.Title)
-        </dt>
+<!-- XÁC NHẬN XÓA -->
+<div class="bn-panel">
+    <div class="alert alert-warning" role="alert">
+        <strong>Bạn có chắc chắn muốn xóa cuốn sách này?</strong>
+        Thao tác sẽ xóa bản ghi khỏi cơ sở dữ liệu và không thể hoàn tác trực tiếp trên website.
+    </div>
 
-        <dd>
-            @Html.DisplayFor(model => model.Title)
-        </dd>
+    <div class="row g-4 align-items-start">
+        <div class="col-sm-4 col-lg-3">
+            <div class="bn-cover" style="max-width:220px; margin:0 auto;">
+                <span>@Model.Title</span>
+                @if (!string.IsNullOrWhiteSpace(Model.ImageUrl))
+                {
+                    <img src="@Url.Content("~/Content/images/" + Model.ImageUrl)"
+                         alt="Ảnh bìa sách @Model.Title"
+                         onerror="this.style.display='none'" />
+                }
+            </div>
+        </div>
 
-        <dt>
-            @Html.DisplayNameFor(model => model.Price)
-        </dt>
+        <div class="col-sm-8 col-lg-9">
+            <h2 class="h5 fw-bold mb-3">@Model.Title</h2>
+            <dl class="row mb-0">
+                <dt class="col-sm-4 mb-2">Mã sách</dt>
+                <dd class="col-sm-8 mb-2">@Model.BookID</dd>
 
-        <dd>
-            @Html.DisplayFor(model => model.Price)
-        </dd>
+                <dt class="col-sm-4 mb-2">Thể loại</dt>
+                <dd class="col-sm-8 mb-2">@(Model.Category != null ? Model.Category.CategoryName : "Chưa có thông tin")</dd>
 
-        <dt>
-            @Html.DisplayNameFor(model => model.StockQuantity)
-        </dt>
+                <dt class="col-sm-4 mb-2">Tác giả</dt>
+                <dd class="col-sm-8 mb-2">@(Model.Author != null ? Model.Author.AuthorName : "Chưa có thông tin")</dd>
 
-        <dd>
-            @Html.DisplayFor(model => model.StockQuantity)
-        </dd>
+                <dt class="col-sm-4 mb-2">Giá sách</dt>
+                <dd class="col-sm-8 mb-2">@Model.Price.ToString("N0") VNĐ</dd>
 
-        <dt>
-            @Html.DisplayNameFor(model => model.ImageUrl)
-        </dt>
+                <dt class="col-sm-4 mb-2">Số lượng trong kho</dt>
+                <dd class="col-sm-8 mb-2">@Model.StockQuantity bản</dd>
+            </dl>
+        </div>
+    </div>
 
-        <dd>
-            @Html.DisplayFor(model => model.ImageUrl)
-        </dd>
+    <hr class="my-4" />
 
-        <dt>
-            @Html.DisplayNameFor(model => model.Description)
-        </dt>
-
-        <dd>
-            @Html.DisplayFor(model => model.Description)
-        </dd>
-
-        <dt>
-            @Html.DisplayNameFor(model => model.IsActive)
-        </dt>
-
-        <dd>
-            @Html.DisplayFor(model => model.IsActive)
-        </dd>
-
-        <dt>
-            @Html.DisplayNameFor(model => model.Author.AuthorName)
-        </dt>
-
-        <dd>
-            @Html.DisplayFor(model => model.Author.AuthorName)
-        </dd>
-
-        <dt>
-            @Html.DisplayNameFor(model => model.Category.CategoryName)
-        </dt>
-
-        <dd>
-            @Html.DisplayFor(model => model.Category.CategoryName)
-        </dd>
-
-    </dl>
-
-    @using (Html.BeginForm()) {
+    <!-- GIỮ NGUYÊN LUỒNG POST XÓA CỦA MVC SCAFFOLDING -->
+    @using (Html.BeginForm("Delete", "Books", new { id = Model.BookID }, FormMethod.Post, null))
+    {
         @Html.AntiForgeryToken()
+        @Html.HiddenFor(model => model.BookID)
 
-        <div class="form-actions no-color">
-            <input type="submit" value="Delete" class="btn btn-default" /> |
-            @Html.ActionLink("Back to List", "Index")
+        <div class="d-flex flex-wrap gap-2">
+            <button type="submit" class="btn btn-danger">Xác nhận xóa</button>
+            <a href="@Url.Action("Details", "Books", new { id = Model.BookID })" class="btn btn-outline-secondary">Hủy, quay về chi tiết</a>
+            <a href="@Url.Action("Index", "Books")" class="btn btn-outline-secondary">Danh sách sách</a>
         </div>
     }
 </div>

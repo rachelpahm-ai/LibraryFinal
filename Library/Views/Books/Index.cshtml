@@ -1,76 +1,141 @@
 ﻿@model IEnumerable<Library.Models.Book>
+@using System.Collections.Generic
+@using System.Linq
 
 @{
-    ViewBag.Title = "Index";
+    ViewBag.Title = "Quản lý sách";
     Layout = "~/Views/Shared/LibraryLayout.cshtml";
+
+    // Dữ liệu Book được BooksController lấy từ Entity Framework.
+    var books = Model == null
+        ? new List<Library.Models.Book>()
+        : Model.ToList();
 }
 
-<h2>Index</h2>
+<!-- TIÊU ĐỀ TRANG QUẢN LÝ SÁCH -->
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+    <div>
+        <h1 class="h3 fw-bold mb-1">Quản lý sách</h1>
+        <p class="text-muted mb-0">
+            Danh sách sách trong thư viện (@books.Count đầu sách)
+        </p>
+    </div>
 
-<p>
-    @Html.ActionLink("Create New", "Create")
-</p>
-<table class="table">
-    <tr>
-        <th>
-            @Html.DisplayNameFor(model => model.Title)
-        </th>
-        <th>
-            @Html.DisplayNameFor(model => model.Price)
-        </th>
-        <th>
-            @Html.DisplayNameFor(model => model.StockQuantity)
-        </th>
-        <th>
-            @Html.DisplayNameFor(model => model.ImageUrl)
-        </th>
-        <th>
-            @Html.DisplayNameFor(model => model.Description)
-        </th>
-        <th>
-            @Html.DisplayNameFor(model => model.IsActive)
-        </th>
-        <th>
-            @Html.DisplayNameFor(model => model.Author.AuthorName)
-        </th>
-        <th>
-            @Html.DisplayNameFor(model => model.Category.CategoryName)
-        </th>
-        <th></th>
-    </tr>
+    <a href="@Url.Action("Create", "Books")" class="bn-btn">
+        + Thêm sách mới
+    </a>
+</div>
 
-@foreach (var item in Model) {
-    <tr>
-        <td>
-            @Html.DisplayFor(modelItem => item.Title)
-        </td>
-        <td>
-            @Html.DisplayFor(modelItem => item.Price)
-        </td>
-        <td>
-            @Html.DisplayFor(modelItem => item.StockQuantity)
-        </td>
-        <td>
-            @Html.DisplayFor(modelItem => item.ImageUrl)
-        </td>
-        <td>
-            @Html.DisplayFor(modelItem => item.Description)
-        </td>
-        <td>
-            @Html.DisplayFor(modelItem => item.IsActive)
-        </td>
-        <td>
-            @Html.DisplayFor(modelItem => item.Author.AuthorName)
-        </td>
-        <td>
-            @Html.DisplayFor(modelItem => item.Category.CategoryName)
-        </td>
-        <td>
-            @Html.ActionLink("Edit", "Edit", new { id=item.BookID }) |
-            @Html.ActionLink("Details", "Details", new { id=item.BookID }) |
-            @Html.ActionLink("Delete", "Delete", new { id=item.BookID })
-        </td>
-    </tr>
-}
+<!-- DANH SÁCH SÁCH -->
+<div class="bn-panel">
+    @if (books.Count == 0)
+    {
+        <div class="text-center py-4">
+            <p class="text-muted mb-3">Chưa có sách nào trong thư viện.</p>
+            <a href="@Url.Action("Create", "Books")" class="btn btn-primary">
+                Thêm sách đầu tiên
+            </a>
+        </div>
+    }
+    else
+    {
+        <div class="table-responsive">
+            <table class="table table-hover align-middle bn-table mb-0">
+                <thead>
+                    <tr>
+                        <th scope="col">Mã sách</th>
+                        <th scope="col">Thông tin sách</th>
+                        <th scope="col">Thể loại</th>
+                        <th scope="col">Tác giả</th>
+                        <th scope="col" class="text-end">Giá</th>
+                        <th scope="col">Số lượng</th>
+                        <th scope="col">Trạng thái</th>
+                        <th scope="col" class="text-nowrap">Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in books)
+                    {
+                        <tr>
+                            <td class="fw-semibold">@item.BookID</td>
 
-</table>
+                            <td>
+                                <div class="d-flex align-items-center gap-3">
+                                    <div class="bn-thumb flex-shrink-0">
+                                        <span>@(string.IsNullOrEmpty(item.Title) ? "B" : item.Title.Substring(0, 1))</span>
+                                        @if (!string.IsNullOrWhiteSpace(item.ImageUrl))
+                                        {
+                                            <img src="@Url.Content("~/Content/images/" + item.ImageUrl)"
+                                                 alt="Bìa sách @item.Title"
+                                                 onerror="this.style.display='none'" />
+                                        }
+                                    </div>
+                                    <div>
+                                        <a class="fw-semibold"
+                                           href="@Url.Action("Details", "Books", new { id = item.BookID })">
+                                            @item.Title
+                                        </a>
+                                        <div class="small text-muted text-truncate"
+                                             style="max-width: 250px;"
+                                             title="@item.Description">
+                                            @(string.IsNullOrWhiteSpace(item.Description)
+                                                ? "Chưa có mô tả"
+                                                : item.Description)
+                                        </div>
+                                    </div>
+                                </div>
+                            </td>
+
+                            <td>@(item.Category != null ? item.Category.CategoryName : "—")</td>
+                            <td>@(item.Author != null ? item.Author.AuthorName : "—")</td>
+                            <td class="text-end text-nowrap">@item.Price.ToString("N0") đ</td>
+
+                            <td>
+                                @if (item.StockQuantity > 0)
+                                {
+                                    <span class="bn-badge-ok">@item.StockQuantity bản</span>
+                                }
+                                else
+                                {
+                                    <span class="bn-badge-out">Hết sách</span>
+                                }
+                            </td>
+
+                            <td>
+                                @if (item.IsActive == true)
+                                {
+                                    <span class="bn-badge-ok">Đang hiển thị</span>
+                                }
+                                else if (item.IsActive == false)
+                                {
+                                    <span class="bn-badge-out">Đã ẩn</span>
+                                }
+                                else
+                                {
+                                    <span class="text-muted">Chưa xác định</span>
+                                }
+                            </td>
+
+                            <td>
+                                <div class="d-flex flex-wrap gap-2">
+                                    <a class="btn btn-sm btn-outline-primary"
+                                       href="@Url.Action("Details", "Books", new { id = item.BookID })">
+                                        Chi tiết
+                                    </a>
+                                    <a class="btn btn-sm btn-outline-secondary"
+                                       href="@Url.Action("Edit", "Books", new { id = item.BookID })">
+                                        Sửa
+                                    </a>
+                                    <a class="btn btn-sm btn-outline-danger"
+                                       href="@Url.Action("Delete", "Books", new { id = item.BookID })">
+                                        Xóa
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>

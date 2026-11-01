@@ -7,11 +7,47 @@ using System.Net;
 using System.Web;
 using System.Web.Mvc;
 using Library.Models;
+using System.IO;
 
 namespace Library.Controllers
 {
     public class BooksController : Controller
     {
+        private bool IsValidBookImage(HttpPostedFileBase file)
+        {
+            if (file == null || file.ContentLength <= 0 || file.ContentLength > 2 * 1024 * 1024)
+                return false;
+
+            string ext = Path.GetExtension(file.FileName).ToLowerInvariant();
+            if (ext != ".jpg" && ext != ".jpeg" && ext != ".png")
+                return false;
+
+            var stream = file.InputStream;
+            if (!stream.CanSeek) return false;
+
+            stream.Position = 0;
+            byte[] head = new byte[8];
+            int read = stream.Read(head, 0, head.Length);
+            stream.Position = 0;
+
+            // Kiểm tra chữ ký file JPEG và PNG, không chỉ dựa vào phần mở rộng.
+            bool jpg = read >= 3 && head[0] == 0xFF && head[1] == 0xD8 && head[2] == 0xFF;
+            bool png = read >= 8 && head[0] == 0x89 && head[1] == 0x50 &&
+                       head[2] == 0x4E && head[3] == 0x47 && head[4] == 0x0D &&
+                       head[5] == 0x0A && head[6] == 0x1A && head[7] == 0x0A;
+
+            return ext == ".png" ? png : jpg;
+        }
+
+        private string SaveBookImage(HttpPostedFileBase file)
+        {
+            string ext = Path.GetExtension(file.FileName).ToLowerInvariant();
+            string uniqueName = Guid.NewGuid().ToString("N") + ext;
+            string folder = Server.MapPath("~/Content/images");
+            Directory.CreateDirectory(folder);
+            file.SaveAs(Path.Combine(folder, uniqueName));
+            return uniqueName; // lưu tên file (không lưu đường dẫn tuyệt đối) vào SQL
+        }
         private LibraryManagementEntities db = new LibraryManagementEntities();
 
         // GET: Books
@@ -49,10 +85,38 @@ namespace Library.Controllers
         // more details see https://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Create([Bind(Include = "BookID,Title,CategoryID,AuthorID,Price,StockQuantity,ImageUrl,Description,IsActive")] Book book)
+        public ActionResult Create(
+      [Bind(Include = "Title,CategoryID,AuthorID,Price,StockQuantity,Description,IsActive")] Book book,
+      HttpPostedFileBase ImageFile)
         {
+
+            if (ImageFile != null && ImageFile.ContentLength > 0 && !IsValidBookImage(ImageFile))
+            {
+                ModelState.AddModelError("ImageFile", "Chỉ chấp nhận ảnh JPG/JPEG/PNG tối đa 2 MB.");
+            }
+
+            if (book.StockQuantity < 0)
+            {
+                ModelState.AddModelError(
+                    "StockQuantity",
+                    "Số lượng sách không được nhỏ hơn 0."
+                );
+            }
+
+            if (book.Price < 0)
+            {
+                ModelState.AddModelError(
+                    "Price",
+                    "Giá sách không được nhỏ hơn 0."
+                );
+            }
             if (ModelState.IsValid)
             {
+                if (ImageFile != null && ImageFile.ContentLength > 0)
+                {
+                    book.ImageUrl = SaveBookImage(ImageFile);
+                }
+
                 db.Books.Add(book);
                 db.SaveChanges();
                 return RedirectToAction("Index");
@@ -62,6 +126,7 @@ namespace Library.Controllers
             ViewBag.CategoryID = new SelectList(db.Categories, "CategoryID", "CategoryName", book.CategoryID);
             return View(book);
         }
+
 
         // GET: Books/Edit/5
         public ActionResult Edit(int? id)
@@ -85,18 +150,48 @@ namespace Library.Controllers
         // more details see https://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Edit([Bind(Include = "BookID,Title,CategoryID,AuthorID,Price,StockQuantity,ImageUrl,Description,IsActive")] Book book)
+        public ActionResult Edit(
+    [Bind(Include = "BookID,Title,CategoryID,AuthorID,Price,StockQuantity,Description,IsActive")] Book book,
+    HttpPostedFileBase ImageFile)
         {
+            if (ImageFile != null && ImageFile.ContentLength > 0 && !IsValidBookImage(ImageFile))
+            {
+                ModelState.AddModelError("ImageFile", "Chỉ chấp nhận ảnh JPG/JPEG/PNG tối đa 2 MB.");
+            }
+
+            var current = db.Books.Find(book.BookID);
+            if (current == null)
+            {
+                return HttpNotFound();
+            }
+
             if (ModelState.IsValid)
             {
-                db.Entry(book).State = EntityState.Modified;
+                current.Title = book.Title;
+                current.CategoryID = book.CategoryID;
+                current.AuthorID = book.AuthorID;
+                current.Price = book.Price;
+                current.StockQuantity = book.StockQuantity;
+                current.Description = book.Description;
+                current.IsActive = book.IsActive;
+
+                // Không chọn ảnh mới -> KHÔNG ĐỔI ImageUrl.
+                if (ImageFile != null && ImageFile.ContentLength > 0)
+                {
+                    current.ImageUrl = SaveBookImage(ImageFile);
+                }
+
                 db.SaveChanges();
                 return RedirectToAction("Index");
             }
+
+            // Giữ preview ảnh cũ trong trường hợp form có lỗi validation.
+            book.ImageUrl = current.ImageUrl;
             ViewBag.AuthorID = new SelectList(db.Authors, "AuthorID", "AuthorName", book.AuthorID);
             ViewBag.CategoryID = new SelectList(db.Categories, "CategoryID", "CategoryName", book.CategoryID);
             return View(book);
         }
+
 
         // GET: Books/Delete/5
         public ActionResult Delete(int? id)
