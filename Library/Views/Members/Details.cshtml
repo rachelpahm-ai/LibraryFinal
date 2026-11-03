@@ -2,10 +2,11 @@
 
 @{
     ViewBag.Title = "Chi tiết thành viên";
-    Layout = "~/Views/Shared/_Layout.cshtml";
+    Layout = "~/Views/Shared/LibraryLayout.cshtml";
 }
 
 <div class="container mt-4">
+
     <h2 class="mb-4">Chi tiết thành viên</h2>
 
     <!-- Thông tin chi tiết -->
@@ -33,13 +34,13 @@
                 <dt class="col-sm-3">Trạng thái tài khoản:</dt>
                 <dd class="col-sm-9">
                     @if (Model.IsLocked == true)
-                     {
-                        <span class="badge bg-danger">Bị khóa</span>
-                     }
-                     else
-                     {
-                        <span class="badge bg-success">Hoạt động</span>
-                     }
+                    {
+                        <span class="badge bg-danger text-white">Bị khóa</span>
+                    }
+                    else
+                    {
+                        <span class="badge bg-success text-white">Hoạt động</span>
+                    }
                 </dd>
             </dl>
         </div>
