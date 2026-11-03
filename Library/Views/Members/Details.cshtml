@@ -1,0 +1,93 @@
+﻿@model Library.Models.Member
+
+@{
+    ViewBag.Title = "Chi tiết thành viên";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container mt-4">
+    <h2 class="mb-4">Chi tiết thành viên</h2>
+
+    <!-- Thông tin chi tiết -->
+    <div class="card shadow-sm mb-4">
+        <div class="card-header bg-info text-white">
+            <h4 class="mb-0">Thông tin: @Model.FullName</h4>
+        </div>
+        <div class="card-body">
+            <dl class="row">
+                <dt class="col-sm-3">Họ tên:</dt>
+                <dd class="col-sm-9">@Model.FullName</dd>
+
+                <dt class="col-sm-3">Email:</dt>
+                <dd class="col-sm-9">@Model.Email</dd>
+
+                <dt class="col-sm-3">Số điện thoại:</dt>
+                <dd class="col-sm-9">@Model.Phone</dd>
+
+                <dt class="col-sm-3">Địa chỉ:</dt>
+                <dd class="col-sm-9">@Model.Address</dd>
+
+                <dt class="col-sm-3">Ngày hết hạn thẻ:</dt>
+                <dd class="col-sm-9">@(Model.CardExpiryDate.HasValue ? Model.CardExpiryDate.Value.ToString("yyyy-MM-dd") : "Không có")</dd>
+
+                <dt class="col-sm-3">Trạng thái tài khoản:</dt>
+                <dd class="col-sm-9">
+                    @if (Model.IsLocked == true)
+                     {
+                        <span class="badge bg-danger">Bị khóa</span>
+                     }
+                     else
+                     {
+                        <span class="badge bg-success">Hoạt động</span>
+                     }
+                </dd>
+            </dl>
+        </div>
+    </div>
+
+    <!-- Lịch sử phiếu mượn của thành viên -->
+    <div class="card shadow-sm mb-4">
+        <div class="card-header bg-secondary text-white">
+            <h5 class="mb-0">Lịch sử phiếu mượn</h5>
+        </div>
+        <div class="card-body table-responsive">
+            <table class="table table-hover align-middle">
+                <thead class="table-light">
+                    <tr>
+                        <th>Mã phiếu</th>
+                        <th>Ngày mượn</th>
+                        <th>Hạn trả</th>
+                        <th>Ngày trả</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model.Loans == null || !Model.Loans.Any())
+                    {
+                        <tr>
+                            <td colspan="4" class="text-center text-muted py-3">Chưa có phiếu mượn.</td>
+                        </tr>
+                    }
+                    else
+                    {
+                        foreach (var loan in Model.Loans)
+                        {
+                            <tr>
+                                <td>@loan.LoanID</td>
+                                <td>@loan.LoanDate.ToString("yyyy-MM-dd")</td>
+                                <td>@loan.DueDate.ToString("yyyy-MM-dd")</td>
+                                <td>
+                                    @(loan.ReturnDate.HasValue ? loan.ReturnDate.Value.ToString("yyyy-MM-dd") : "Đang mượn")
+                                </td>
+                            </tr>
+                        }
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="mb-4">
+        @Html.ActionLink("Chỉnh sửa", "Edit", new { id = Model.MemberID }, new { @class = "btn btn-warning text-dark" })
+        @Html.ActionLink("Quay lại danh sách", "Index", null, new { @class = "btn btn-secondary ms-2" })
+    </div>
+</div>
