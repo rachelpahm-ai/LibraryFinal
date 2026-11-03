@@ -1,0 +1,208 @@
+﻿@model IEnumerable<Library.Models.Reservation>
+
+@{
+    ViewBag.Title = "Quản lý đặt trước";
+
+    string search = ViewBag.Search as string;
+    string currentStatus = ViewBag.CurrentStatus as string;
+    string sort = ViewBag.Sort as string;
+
+    int currentPage = (int)ViewBag.Page;
+    int totalPages = (int)ViewBag.TotalPages;
+    int totalItems = (int)ViewBag.TotalItems;
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h2>Quản lý đặt trước</h2>
+
+    @Html.ActionLink("Thêm mới", "Create", null,
+        new { @class = "btn btn-primary" })
+</div>
+
+<div class="bn-panel p-3 mb-3">
+    @using (Html.BeginForm("Index", "Reservations", FormMethod.Get))
+    {
+        <div class="row g-2">
+            <div class="col-md-5">
+                @Html.TextBox("search", search, new
+                {
+                    @class = "form-control",
+                    placeholder = "Tên thành viên hoặc tên sách",
+                    aria_label = "Tìm thành viên hoặc sách"
+                })
+            </div>
+
+            <div class="col-md-3">
+                @Html.DropDownList(
+                    "status",
+                    new SelectList(
+                        new[] { "Chờ", "Đã nhận", "Hủy" },
+                        currentStatus),
+                    "Tất cả trạng thái",
+                    new
+                    {
+                        @class = "form-select",
+                        aria_label = "Lọc trạng thái"
+                    })
+            </div>
+
+            <div class="col-md-2">
+                @Html.DropDownList(
+                    "sort",
+                    new SelectList(
+                        new[]
+                        {
+                            new
+                            {
+                                Value = "newest",
+                                Text = "Mới nhất"
+                            },
+                            new
+                            {
+                                Value = "oldest",
+                                Text = "Cũ nhất"
+                            }
+                        },
+                        "Value",
+                        "Text",
+                        sort),
+                    new
+                    {
+                        @class = "form-select",
+                        aria_label = "Sắp xếp ngày đặt"
+                    })
+            </div>
+
+            <div class="col-md-2">
+                <button type="submit" class="btn btn-primary">
+                    Tìm kiếm
+                </button>
+
+                @Html.ActionLink("Bỏ lọc", "Index", null,
+                    new { @class = "btn btn-outline-secondary mt-1" })
+            </div>
+        </div>
+    }
+</div>
+
+<p>Tổng số: <strong>@totalItems</strong> yêu cầu</p>
+
+<div class="table-responsive">
+    <table class="table table-bordered table-hover bn-table">
+        <thead>
+            <tr>
+                <th>Thành viên</th>
+                <th>Sách</th>
+                <th>Ngày đặt</th>
+                <th>Trạng thái</th>
+                <th>Thao tác</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            @if (!Model.Any())
+            {
+                <tr>
+                    <td colspan="5" class="text-center">
+                        Không tìm thấy yêu cầu đặt trước.
+                    </td>
+                </tr>
+            }
+            else
+            {
+                foreach (var item in Model)
+                {
+                    <tr>
+                        <td>
+                            @(item.Member != null
+                                ? item.Member.FullName
+                                : "Không có thông tin")
+                        </td>
+
+                        <td>
+                            @(item.Book != null
+                                ? item.Book.Title
+                                : "Không có thông tin")
+                        </td>
+
+                        <td>
+                            @(item.ReserveDate.HasValue
+                                ? item.ReserveDate.Value.ToString("dd/MM/yyyy")
+                                : "Chưa có ngày")
+                        </td>
+
+                        <td>
+                            @if (item.Status == "Chờ")
+                            {
+                                <span class="badge bg-warning text-dark">
+                                    Chờ
+                                </span>
+                            }
+                            else if (item.Status == "Đã nhận")
+                            {
+                                <span class="badge bg-success">
+                                    Đã nhận
+                                </span>
+                            }
+                            else if (item.Status == "Hủy")
+                            {
+                                <span class="badge bg-danger">
+                                    Hủy
+                                </span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-secondary">
+                                    @(item.Status ?? "Chưa có trạng thái")
+                                </span>
+                            }
+                        </td>
+
+                        <td>
+                            @Html.ActionLink("Chi tiết", "Details",
+                                new { id = item.ReserveID },
+                                new { @class = "btn btn-sm btn-info" })
+
+                            @Html.ActionLink("Sửa", "Edit",
+                                new { id = item.ReserveID },
+                                new { @class = "btn btn-sm btn-warning" })
+
+                            @Html.ActionLink("Xóa", "Delete",
+                                new { id = item.ReserveID },
+                                new { @class = "btn btn-sm btn-danger" })
+                        </td>
+                    </tr>
+                }
+            }
+        </tbody>
+    </table>
+</div>
+
+@if (totalPages > 1)
+{
+    <div class="d-flex align-items-center gap-3 mt-3">
+        @if (currentPage > 1)
+        {
+            @Html.ActionLink("« Trước", "Index", new
+            {
+                page = currentPage - 1,
+                search = search,
+                status = currentStatus,
+                sort = sort
+            }, new { @class = "btn btn-outline-primary" })
+        }
+
+        <span>Trang @currentPage / @totalPages</span>
+
+        @if (currentPage < totalPages)
+        {
+            @Html.ActionLink("Sau »", "Index", new
+            {
+                page = currentPage + 1,
+                search = search,
+                status = currentStatus,
+                sort = sort
+            }, new { @class = "btn btn-outline-primary" })
+        }
+    </div>
+}

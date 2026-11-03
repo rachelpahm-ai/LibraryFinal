@@ -1,0 +1,94 @@
+﻿@model Library.Models.Reservation
+
+@{
+    ViewBag.Title = "Xóa đặt trước";
+    bool canDelete = Model.Status == "Hủy";
+}
+
+<h2>Xóa yêu cầu đặt trước</h2>
+
+<div class="bn-panel p-4">
+    @Html.ValidationSummary(
+        false, "", new { @class = "text-danger" })
+
+    @if (canDelete)
+    {
+        <div class="alert alert-warning">
+            Bạn có chắc muốn xóa yêu cầu này?
+            Sau khi xóa sẽ không thể khôi phục bằng giao diện.
+        </div>
+    }
+    else
+    {
+        <div class="alert alert-info">
+            Chỉ được xóa yêu cầu đã Hủy.
+            Hãy nhấn “Sửa trạng thái”, chuyển sang Hủy và lưu trước.
+        </div>
+    }
+
+    <dl class="row">
+        <dt class="col-sm-3">Mã đặt trước</dt>
+        <dd class="col-sm-9">@Model.ReserveID</dd>
+
+        <dt class="col-sm-3">Thành viên</dt>
+        <dd class="col-sm-9">
+            @(Model.Member != null
+                ? Model.Member.FullName
+                : "Không có thông tin")
+        </dd>
+
+        <dt class="col-sm-3">Sách</dt>
+        <dd class="col-sm-9">
+            @(Model.Book != null
+                ? Model.Book.Title
+                : "Không có thông tin")
+        </dd>
+
+        <dt class="col-sm-3">Ngày đặt</dt>
+        <dd class="col-sm-9">
+            @(Model.ReserveDate.HasValue
+                ? Model.ReserveDate.Value.ToString("dd/MM/yyyy")
+                : "Chưa có ngày")
+        </dd>
+
+        <dt class="col-sm-3">Trạng thái</dt>
+        <dd class="col-sm-9">@Model.Status</dd>
+    </dl>
+
+    @if (canDelete)
+    {
+        using (Html.BeginForm(
+            "Delete",
+            "Reservations",
+            new { id = Model.ReserveID },
+            FormMethod.Post,
+            null))
+        {
+            @Html.AntiForgeryToken()
+
+            <button type="submit" class="btn btn-danger">
+                Xác nhận xóa
+            </button>
+
+            @Html.ActionLink(
+                "Quay lại",
+                "Index",
+                null,
+                new { @class = "btn btn-outline-secondary" })
+        }
+    }
+    else
+    {
+        @Html.ActionLink(
+            "Sửa trạng thái",
+            "Edit",
+            new { id = Model.ReserveID },
+            new { @class = "btn btn-primary" })
+
+        @Html.ActionLink(
+            "Quay lại",
+            "Index",
+            null,
+            new { @class = "btn btn-outline-secondary" })
+    }
+</div>

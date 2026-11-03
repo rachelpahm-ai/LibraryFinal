@@ -1,0 +1,64 @@
+﻿@model Library.Models.ViewModels.UserEditViewModel
+
+@{
+    ViewBag.Title = "Sửa tài khoản nhân viên";
+}
+
+<h2>Sửa tài khoản nhân viên</h2>
+
+<div class="bn-panel p-4">
+    @using (Html.BeginForm("Edit", "Users", FormMethod.Post))
+     {
+        @Html.AntiForgeryToken()
+        @Html.HiddenFor(m => m.AccountID)
+
+        @Html.ValidationSummary(
+            false, "", new { @class = "text-danger" })
+
+        <div class="mb-3">
+            @Html.LabelFor(m => m.Username,
+                new { @class = "form-label" })
+
+            <p class="form-control-plaintext">@Model.Username</p>
+        </div>
+
+        <div class="mb-3">
+            @Html.LabelFor(m => m.Role,
+                new { @class = "form-label" })
+
+            @Html.DropDownListFor(
+                m => m.Role,
+                new SelectList(new[] { "Admin", "Librarian" }),
+                "-- Chọn vai trò --",
+                new { @class = "form-select" })
+
+            @Html.ValidationMessageFor(m => m.Role, "",
+                new { @class = "text-danger" })
+        </div>
+
+        <div class="mb-3">
+            @Html.LabelFor(m => m.NewPassword, new { @class = "form-label" });
+
+            @Html.PasswordFor(m => m.NewPassword,new{@class = "form-control",autocomplete = "new-password"})
+
+            <div class="form-text">
+                Để trống nếu muốn giữ mật khẩu hiện tại.
+            </div>
+
+            @Html.ValidationMessageFor(m => m.NewPassword, "",new { @class = "text-danger" })
+        </div>
+
+        <div class="mb-3">
+            @Html.LabelFor(m => m.ConfirmPassword,new { @class = "form-label" })})
+
+            @Html.ValidationMessageFor(m => m.ConfirmPassword, "",new { @class = "text-danger" })
+        </div>
+
+        <button type="submit" class="btn btn-primary">
+            Lưu thay đổi
+        </button>
+
+        @Html.ActionLink("Quay lại", "Index", null,
+            new { @class = "btn btn-outline-secondary" })
+     }
+</div>

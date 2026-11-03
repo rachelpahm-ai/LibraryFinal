@@ -1,0 +1,109 @@
+﻿@model Library.Models.Reservation
+
+@{
+    ViewBag.Title = "Chi tiết đặt trước";
+}
+
+<h2>Chi tiết yêu cầu đặt trước</h2>
+
+<div class="bn-panel p-4">
+    <dl class="row">
+        <dt class="col-sm-3">Mã đặt trước</dt>
+        <dd class="col-sm-9">@Model.ReserveID</dd>
+
+        <dt class="col-sm-3">Thành viên</dt>
+        <dd class="col-sm-9">
+            @if (Model.Member != null)
+            {
+                @Html.ActionLink(
+                    Model.Member.FullName,
+                    "Details",
+                    "Members",
+                    new { id = Model.MemberID },
+                    null)
+            }
+            else
+            {
+                <span>Không có thông tin thành viên</span>
+            }
+        </dd>
+
+        <dt class="col-sm-3">Sách</dt>
+        <dd class="col-sm-9">
+            @if (Model.Book != null)
+            {
+                @Html.ActionLink(
+                    Model.Book.Title,
+                    "Details",
+                    "Books",
+                    new { id = Model.BookID },
+                    null)
+            }
+            else
+            {
+                <span>Không có thông tin sách</span>
+            }
+        </dd>
+
+        <dt class="col-sm-3">Ngày đặt</dt>
+        <dd class="col-sm-9">
+            @(Model.ReserveDate.HasValue
+                ? Model.ReserveDate.Value.ToString("dd/MM/yyyy")
+                : "Chưa có ngày")
+        </dd>
+
+        <dt class="col-sm-3">Trạng thái yêu cầu</dt>
+        <dd class="col-sm-9">
+            @if (Model.Status == "Chờ")
+            {
+                <span class="badge bg-warning text-dark">Chờ</span>
+            }
+            else if (Model.Status == "Đã nhận")
+            {
+                <span class="badge bg-success">Đã nhận</span>
+            }
+            else if (Model.Status == "Hủy")
+            {
+                <span class="badge bg-danger">Hủy</span>
+            }
+            else
+            {
+                <span class="badge bg-secondary">
+                    @(Model.Status ?? "Chưa có trạng thái")
+                </span>
+            }
+        </dd>
+
+        <dt class="col-sm-3">Tình trạng sách hiện tại</dt>
+        <dd class="col-sm-9">
+            @if (Model.Book == null)
+            {
+                <span>Không xác định</span>
+            }
+            else if (Model.Book.StockQuantity > 0)
+            {
+                <span class="badge bg-success">Còn sách</span>
+
+                <div class="mt-2">
+                    Số lượng còn: @Model.Book.StockQuantity
+                </div>
+            }
+            else
+            {
+                <span class="badge bg-danger">Hết sách</span>
+            }
+        </dd>
+    </dl>
+
+    @Html.ActionLink(
+        "Sửa trạng thái",
+        "Edit",
+        new { id = Model.ReserveID },
+        new { @class = "btn btn-primary" })
+
+    @Html.ActionLink(
+        "Quay lại",
+        "Index",
+        null,
+        new { @class = "btn btn-outline-secondary" })
+</div>

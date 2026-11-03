@@ -1,0 +1,177 @@
+﻿@model IEnumerable<Library.Models.Account>
+
+@{
+    ViewBag.Title = "Quản lý tài khoản nhân viên";
+
+    string search = ViewBag.Search as string;
+    string currentRole = ViewBag.CurrentRole as string;
+
+    int currentPage = (int)ViewBag.Page;
+    int totalPages = (int)ViewBag.TotalPages;
+    int totalItems = (int)ViewBag.TotalItems;
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h2>Quản lý tài khoản nhân viên</h2>
+
+    @Html.ActionLink(
+        "Thêm mới",
+        "Create",
+        null,
+        new { @class = "btn btn-primary" })
+</div>
+
+<div class="bn-panel p-3 mb-3">
+    @using (Html.BeginForm("Index", "Users", FormMethod.Get))
+    {
+        <div class="row g-2">
+            <div class="col-md-6">
+                @Html.TextBox(
+                    "search",
+                    search,
+                    new
+                    {
+                        @class = "form-control",
+                        placeholder = "Nhập tên đăng nhập",
+                        aria_label = "Tìm tên đăng nhập"
+                    })
+            </div>
+
+            <div class="col-md-3">
+                @Html.DropDownList(
+                    "role",
+                    new SelectList(
+                        new[] { "Admin", "Librarian" },
+                        currentRole),
+                    "Tất cả vai trò",
+                    new
+                    {
+                        @class = "form-select",
+                        aria_label = "Lọc vai trò"
+                    })
+            </div>
+
+            <div class="col-md-3">
+                <button type="submit" class="btn btn-primary">
+                    Tìm kiếm
+                </button>
+
+                @Html.ActionLink(
+                    "Bỏ lọc",
+                    "Index",
+                    null,
+                    new { @class = "btn btn-outline-secondary" })
+            </div>
+        </div>
+    }
+</div>
+
+<p>Tổng số: <strong>@totalItems</strong> tài khoản</p>
+
+<div class="table-responsive">
+    <table class="table table-bordered table-hover bn-table">
+        <thead>
+            <tr>
+                <th>Tên đăng nhập</th>
+                <th>Vai trò</th>
+                <th>Thao tác</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            @if (!Model.Any())
+            {
+                <tr>
+                    <td colspan="3" class="text-center">
+                        Không tìm thấy tài khoản.
+                    </td>
+                </tr>
+            }
+            else
+            {
+                foreach (var item in Model)
+                {
+                    <tr>
+                        <td>@item.Username</td>
+
+                        <td>
+                            @if (item.Role == "Admin")
+                            {
+                                <span class="badge bg-danger">
+                                    Admin
+                                </span>
+                            }
+                            else if (item.Role == "Librarian")
+                            {
+                                <span class="badge bg-primary">
+                                    Librarian
+                                </span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-secondary">
+                                    @(item.Role ?? "Chưa có vai trò")
+                                </span>
+                            }
+                        </td>
+
+                        <td>
+                            @Html.ActionLink(
+                                "Chi tiết",
+                                "Details",
+                                new { id = item.AccountID },
+                                new { @class = "btn btn-sm btn-info" })
+
+                            @Html.ActionLink(
+                                "Sửa",
+                                "Edit",
+                                new { id = item.AccountID },
+                                new { @class = "btn btn-sm btn-warning" })
+
+                            @Html.ActionLink(
+                                "Xóa",
+                                "Delete",
+                                new { id = item.AccountID },
+                                new { @class = "btn btn-sm btn-danger" })
+                        </td>
+                    </tr>
+                }
+            }
+        </tbody>
+    </table>
+</div>
+
+@if (totalPages > 1)
+{
+    <div class="d-flex align-items-center gap-3 mt-3">
+        @if (currentPage > 1)
+         {
+            @Html.ActionLink(
+                "« Trước",
+                "Index",
+                new
+                {
+                    page = currentPage - 1,
+                    search = search,
+                    role = currentRole
+                },
+                new { @class = "btn btn-outline-primary" })
+         }
+
+        <span>Trang @currentPage / @totalPages</span>
+
+        @if (currentPage < totalPages)
+         {
+            @Html.ActionLink(
+                "Sau »",
+                "Index",
+                new
+                {
+                    page = currentPage + 1,
+                    search = search,
+                    role = currentRole
+                },
+                new { @class = "btn btn-outline-primary" })
+         }
+    </div>
+ }

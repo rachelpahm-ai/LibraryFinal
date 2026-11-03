@@ -1,0 +1,59 @@
+﻿@model Library.Models.Account
+
+@{
+    ViewBag.Title = "Xóa tài khoản";
+    bool canDelete = (bool)ViewBag.CanDelete;
+}
+
+<h2>Xóa tài khoản nhân viên</h2>
+
+<div class="bn-panel p-4">
+    @if (!canDelete)
+    {
+        <div class="alert alert-danger">
+            Không được xóa Admin cuối cùng.
+        </div>
+    }
+    else
+    {
+        <div class="alert alert-warning">
+            Bạn có chắc muốn xóa tài khoản này?
+        </div>
+    }
+
+    <dl class="row">
+        <dt class="col-sm-3">Mã tài khoản</dt>
+        <dd class="col-sm-9">@Model.AccountID</dd>
+
+        <dt class="col-sm-3">Tên đăng nhập</dt>
+        <dd class="col-sm-9">@Model.Username</dd>
+
+        <dt class="col-sm-3">Vai trò</dt>
+        <dd class="col-sm-9">@Model.Role</dd>
+    </dl>
+
+    @if (canDelete)
+    {
+        using (Html.BeginForm(
+            "Delete",
+            "Users",
+            new { id = Model.AccountID },
+            FormMethod.Post,
+            null))
+        {
+            @Html.AntiForgeryToken()
+
+            <button type="submit" class="btn btn-danger">
+                Xác nhận xóa
+            </button>
+
+            @Html.ActionLink("Quay lại", "Index", null,
+                new { @class = "btn btn-outline-secondary" })
+        }
+    }
+    else
+    {
+        @Html.ActionLink("Quay lại", "Index", null,
+            new { @class = "btn btn-outline-secondary" })
+    }
+</div>
