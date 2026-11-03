@@ -146,17 +146,10 @@ namespace Library.Controllers
                 }
             }
 
-            // Kiểm tra sách còn hàng
-            var books = db.Books
-                .Where(b =>
-                    model.SelectedBookIDs != null &&
-                    model.SelectedBookIDs.Contains(b.BookID) &&
-                    b.IsActive == true &&
-                    b.StockQuantity > 0)
-                .ToList();
+            var selectedBookIDs = model.SelectedBookIDs == null? new int[0]: model.SelectedBookIDs.ToArray();
+            var books = db.Books.Where(b =>selectedBookIDs.Contains(b.BookID) &&b.IsActive == true && b.StockQuantity > 0).ToList();
 
-            if (model.SelectedBookIDs != null &&
-                books.Count != model.SelectedBookIDs.Distinct().Count())
+            if (books.Count != selectedBookIDs.Distinct().Count())
             {
                 ModelState.AddModelError(
                     "SelectedBookIDs",
@@ -233,6 +226,28 @@ namespace Library.Controllers
             return View(loan);
         }
 
+        // GET: Loans/Cancel/5
+        public ActionResult Cancel(int id)
+        {
+            var loan = db.Loans
+                .Include(l => l.Member)
+                .Include(l => l.LoanDetails)
+                .FirstOrDefault(l => l.LoanID == id);
+
+            if (loan == null)
+            {
+                return HttpNotFound();
+            }
+
+            if (loan.ReturnDate != null)
+            {
+                TempData["Error"] = "Không thể hủy phiếu đã trả.";
+                return RedirectToAction("Index");
+            }
+
+            return View(loan);
+        }
+
         // Tải danh sách thành viên và sách cho form
         private void LoadCreateLists(LoanCreateViewModel model)
         {
@@ -252,17 +267,21 @@ namespace Library.Controllers
                 .ToList();
 
             // Danh sách sách đang hoạt động và còn hàng
-            model.Books = db.Books
-                .Where(b =>
-                    b.IsActive == true &&
-                    b.StockQuantity > 0)
+            var selectedBookIDs = model.SelectedBookIDs == null
+                ? new int[0]
+                : model.SelectedBookIDs.ToArray();
+
+            var availableBooks = db.Books
+                .Where(b => b.IsActive == true && b.StockQuantity > 0)
                 .OrderBy(b => b.Title)
+                .ToList();
+
+            model.Books = availableBooks
                 .Select(b => new SelectListItem
                 {
                     Value = b.BookID.ToString(),
                     Text = b.Title,
-                    Selected = model.SelectedBookIDs != null &&
-                               model.SelectedBookIDs.Contains(b.BookID)
+                    Selected = selectedBookIDs.Contains(b.BookID)
                 })
                 .ToList();
         }
