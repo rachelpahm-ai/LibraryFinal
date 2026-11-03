@@ -1,0 +1,26 @@
+﻿@model Library.Models.Category
+
+@{
+    ViewBag.Title = "Chỉnh sửa Thể loại";
+}
+
+<div class="container mt-4" style="max-width: 600px;">
+    <h2>Cập nhật thể loại</h2>
+    <hr />
+
+    @using (Html.BeginForm())
+    {
+        @Html.AntiForgeryToken()
+
+        <!-- BẮT BUỘC PHẢI CÓ DÒNG NÀY ĐỂ GIỮ LẠI ID KHI POST -->
+        @Html.HiddenFor(model => model.CategoryID)
+
+        <!-- Dùng chung lại mảnh ghép form -->
+        @Html.Partial("_CategoryForm")
+
+        <div class="mt-3">
+            <button type="submit" class="btn btn-primary">Lưu thay đổi</button>
+            @Html.ActionLink("Quay lại danh sách", "Index", null, new { @class = "btn btn-secondary ms-2" })
+        </div>
+    }
+</div>

@@ -1,0 +1,62 @@
+﻿@model IEnumerable<Library.Models.Author>
+
+@{
+    ViewBag.Title = "Quản lý Tác giả";
+}
+
+<div class="container mt-4">
+    <h2>Quản lý Tác giả</h2>
+
+    <p>
+        @Html.ActionLink("Thêm mới Tác giả", "Create", null, new { @class = "btn btn-primary mb-3" })
+    </p>
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success">@TempData["Success"]</div>
+    }
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger">@TempData["Error"]</div>
+    }
+
+    <!-- Form tìm kiếm và bộ lọc -->
+    @using (Html.BeginForm("Index", "Authors", FormMethod.Get, new { @class = "row g-3 mb-3" }))
+    {
+        <div class="col-md-4">
+            <input type="text" name="searchString" class="form-control" placeholder="Tìm theo tên tác giả..." value="@ViewBag.CurrentSearch" />
+        </div>
+        <div class="col-md-3">
+            <select name="filter" class="form-select">
+                <option value="">-- Tất cả trạng thái --</option>
+                <option value="HasBooks" @(ViewBag.CurrentFilter == "HasBooks" ? "selected" : "")>Có sách</option>
+                <option value="NoBooks" @(ViewBag.CurrentFilter == "NoBooks" ? "selected" : "")>Chưa có sách</option>
+            </select>
+        </div>
+        <div class="col-md-3">
+            <button type="submit" class="btn btn-secondary">Lọc / Tìm kiếm</button>
+        </div>
+    }
+
+    <table class="table table-bordered table-striped">
+        <thead class="table-dark">
+            <tr>
+                <th>Tên tác giả</th>
+                <th style="width: 200px;">Thao tác</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>@Html.DisplayFor(modelItem => item.AuthorName)</td>
+                    <td>
+                        @Html.ActionLink("Sửa", "Edit", new { id = item.AuthorID }, new { @class = "btn btn-sm btn-warning" })
+                        @Html.ActionLink("Chi tiết", "Details", new { id = item.AuthorID }, new { @class = "btn btn-sm btn-info" })
+                        @Html.ActionLink("Xóa", "Delete", new { id = item.AuthorID }, new { @class = "btn btn-sm btn-danger" })
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

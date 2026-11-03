@@ -1,0 +1,33 @@
+﻿@model IEnumerable<Library.Models.Category>
+
+@{
+    ViewBag.Title = "Danh sách Thể loại";
+}
+
+<div class="container mt-4">
+    <h2>Danh sách Thể loại</h2>
+    <p>
+        @Html.ActionLink("Thêm mới thể loại", "Create", null, new { @class = "btn btn-success mb-3" })
+    </p>
+
+    <table class="table table-bordered table-striped">
+        <tr>
+            <th>Tên thể loại</th>
+            <th>Số lượng sách</th>
+            <th>Thao tác</th>
+        </tr>
+
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@item.CategoryName</td>
+                <td>@item.Books.Count</td>
+                <td>
+                    @Html.ActionLink("Sửa", "Edit", new { id = item.CategoryID }, new { @class = "btn btn-warning btn-sm" }) |
+                    @Html.ActionLink("Chi tiết", "Details", new { id = item.CategoryID }, new { @class = "btn btn-info btn-sm" }) |
+                    @Html.ActionLink("Xóa", "Delete", new { id = item.CategoryID }, new { @class = "btn btn-danger btn-sm" })
+                </td>
+            </tr>
+        }
+    </table>
+</div>

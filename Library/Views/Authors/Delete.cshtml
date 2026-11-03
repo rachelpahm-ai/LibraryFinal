@@ -1,0 +1,28 @@
+﻿@model Library.Models.Author
+
+@{
+    ViewBag.Title = "Xóa Tác giả";
+}
+
+<div class="container mt-4" style="max-width: 600px;">
+    <h2>Xóa Tác giả</h2>
+    <h3 class="text-danger">Bạn có chắc chắn muốn xóa tác giả này không?</h3>
+    <hr />
+
+    <div>
+        <dl class="row">
+            <dt class="col-sm-3">Tên tác giả:</dt>
+            <dd class="col-sm-9">@Html.DisplayFor(model => model.AuthorName)</dd>
+        </dl>
+
+        @using (Html.BeginForm())
+        {
+            @Html.AntiForgeryToken()
+
+            <div class="form-actions no-color">
+                <input type="submit" value="Xóa" class="btn btn-danger" />
+                @Html.ActionLink("Quay lại danh sách", "Index", null, new { @class = "btn btn-secondary ms-2" })
+            </div>
+        }
+    </div>
+</div>
