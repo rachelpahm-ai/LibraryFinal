@@ -1,0 +1,62 @@
+﻿@model IEnumerable<Library.Models.Loan>
+
+@{
+    ViewBag.Title = "Danh sách phiếu mượn";
+}
+
+<h2>Danh sách phiếu mượn</h2>
+
+<p>
+    @Html.ActionLink("Tạo phiếu mượn mới", "Create", "Loans", null,
+        new { @class = "btn btn-primary" })
+</p>
+
+@using (Html.BeginForm("Index", "Loans", FormMethod.Get))
+{
+    <div class="form-group">
+        <label>Tìm theo tên thành viên</label>
+        <input type="text" name="searchName"
+               value="@Request.QueryString["searchName"]"
+               class="form-control" />
+    </div>
+
+    <div class="form-group">
+        <label>Sắp xếp</label>
+        <select name="sortOrder" class="form-control">
+            <option value="newest">Mới nhất</option>
+            <option value="oldest">Cũ nhất</option>
+        </select>
+    </div>
+
+    <button type="submit" class="btn btn-success">Tìm kiếm</button>
+}
+
+<table class="table table-bordered table-striped">
+    <thead>
+        <tr>
+            <th>Mã phiếu</th>
+            <th>Thành viên</th>
+            <th>Ngày mượn</th>
+            <th>Hạn trả</th>
+            <th>Số lượng sách</th>
+            <th>Thao tác</th>
+        </tr>
+    </thead>
+
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@item.LoanID</td>
+                <td>@(item.Member != null ? item.Member.FullName : "")</td>
+                <td>@item.LoanDate.ToString("dd/MM/yyyy")</td>
+                <td>@item.DueDate.ToString("dd/MM/yyyy")</td>
+                <td>@(item.LoanDetails != null ? item.LoanDetails.Count : 0)</td>
+                <td>
+                    @Html.ActionLink("Chi tiết", "Details",
+                        new { id = item.LoanID })
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

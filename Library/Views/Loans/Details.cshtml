@@ -1,0 +1,70 @@
+﻿@model Library.Models.Loan
+
+@{
+    ViewBag.Title = "Chi tiết phiếu mượn";
+}
+
+<h2>Chi tiết phiếu mượn</h2>
+
+<div class="panel panel-default">
+    <div class="panel-heading">
+        Thông tin phiếu mượn
+    </div>
+
+    <div class="panel-body">
+        <p><strong>Mã phiếu:</strong> @Model.LoanID</p>
+
+        <p>
+            <strong>Thành viên:</strong>
+            @(Model.Member != null ? Model.Member.FullName : "")
+        </p>
+
+        <p>
+            <strong>Ngày mượn:</strong>
+            @Model.LoanDate.ToString("dd/MM/yyyy")
+        </p>
+
+        <p>
+            <strong>Hạn trả:</strong>
+            @Model.DueDate.ToString("dd/MM/yyyy")
+        </p>
+    </div>
+</div>
+
+<h3>Danh sách sách mượn</h3>
+
+<table class="table table-bordered table-striped">
+    <thead>
+        <tr>
+            <th>Mã sách</th>
+            <th>Tên sách</th>
+            <th>Tác giả</th>
+            <th>Số lượng</th>
+        </tr>
+    </thead>
+
+    <tbody>
+        @foreach (var detail in Model.LoanDetails)
+        {
+            <tr>
+                <td>@detail.BookID</td>
+
+                <td>
+                    @(detail.Book != null ? detail.Book.Title : "")
+                </td>
+
+                <td>
+                    @(detail.Book != null && detail.Book.Author != null
+                        ? detail.Book.Author.AuthorName : "")
+                </td>
+
+                <td>@detail.Quantity</td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<p>
+    @Html.ActionLink("Quay lại danh sách", "Index", "Loans",
+        null, new { @class = "btn btn-default" })
+</p>

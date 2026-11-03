@@ -1,0 +1,48 @@
+﻿@model Library.Models.Loan
+
+@{
+    ViewBag.Title = "Hủy phiếu mượn";
+}
+
+<h2>Xác nhận hủy phiếu mượn</h2>
+
+<div class="alert alert-warning">
+    Bạn có chắc chắn muốn hủy phiếu mượn này không?
+</div>
+
+<div class="panel panel-default">
+    <div class="panel-body">
+        <p>
+            <strong>Mã phiếu:</strong>
+            @Model.LoanID
+        </p>
+
+        <p>
+            <strong>Thành viên:</strong>
+            @(Model.Member != null ? Model.Member.FullName : "")
+        </p>
+
+        <p>
+            <strong>Ngày mượn:</strong>
+            @Model.LoanDate.ToString("dd/MM/yyyy")
+        </p>
+
+        <p>
+            <strong>Hạn trả:</strong>
+            @Model.DueDate.ToString("dd/MM/yyyy")
+        </p>
+    </div>
+</div>
+
+@using (Html.BeginForm("Cancel", "Loans", FormMethod.Post))
+{
+    @Html.AntiForgeryToken()
+    @Html.Hidden("id", Model.LoanID)
+
+    <button type="submit" class="btn btn-danger">
+        Xác nhận hủy
+    </button>
+
+    @Html.ActionLink("Quay lại", "Index", "Loans",
+        null, new { @class = "btn btn-default" })
+}
