@@ -23,8 +23,8 @@ namespace Library.Controllers
             if (!string.IsNullOrEmpty(searchTerm))
             {
                 members = members.Where(m => m.FullName.Contains(searchTerm) ||
-                                             m.Email.Contains(searchTerm) ||
-                                             m.Phone.Contains(searchTerm));
+                                           m.Email.Contains(searchTerm) ||
+                                           m.Phone.Contains(searchTerm));
             }
 
             // Lọc theo trạng thái (Xử lý an toàn cho cả trường hợp giá trị NULL trong DB)
@@ -123,7 +123,7 @@ namespace Library.Controllers
         // POST: Members/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Edit([Bind(Include = "MemberID,FullName,Email,Phone,Address,IsLocked")] Member member)
+        public ActionResult Edit([Bind(Include = "MemberID,FullName,Email,Phone,Address,CardExpiryDate,IsLocked")] Member member)
         {
             if (ModelState.IsValid)
             {
