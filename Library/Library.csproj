@@ -256,6 +256,7 @@
     <Content Include="Views\Loans\Index.cshtml" />
     <Content Include="Views\Loans\Details.cshtml" />
     <Content Include="Views\Loans\Cancel.cshtml" />
+    <Content Include="Views\Loans\_ViewStart.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
