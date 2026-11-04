@@ -14,12 +14,16 @@ namespace Library.Controllers
     {
         private LibraryManagementEntities db = new LibraryManagementEntities();
 
-        // GET: Members
-        public ActionResult Index(string searchTerm, string statusFilter)
+        public ActionResult Index(string searchTerm, string statusFilter, string sortOrder, int? page)
         {
+            ViewBag.SearchTerm = searchTerm;
+            ViewBag.StatusFilter = statusFilter;
+            ViewBag.CurrentSort = sortOrder;
+
+            ViewBag.NameSortParm = string.IsNullOrEmpty(sortOrder) ? "name_desc" : "";
+
             var members = db.Members.AsQueryable();
 
-            // Tìm kiếm gộp trên 3 cột: Họ tên, Email, Số điện thoại
             if (!string.IsNullOrEmpty(searchTerm))
             {
                 members = members.Where(m => m.FullName.Contains(searchTerm) ||
@@ -27,7 +31,6 @@ namespace Library.Controllers
                                            m.Phone.Contains(searchTerm));
             }
 
-            // Lọc theo trạng thái (Xử lý an toàn cho cả trường hợp giá trị NULL trong DB)
             if (!string.IsNullOrEmpty(statusFilter))
             {
                 if (statusFilter == "True")
@@ -40,13 +43,30 @@ namespace Library.Controllers
                 }
             }
 
-            ViewBag.SearchTerm = searchTerm;
-            ViewBag.StatusFilter = statusFilter;
+            switch (sortOrder)
+            {
+                case "name_desc":
+                    members = members.OrderByDescending(m => m.FullName);
+                    break;
+                default:
+                    members = members.OrderBy(m => m.FullName);
+                    break;
+            }
 
-            return View(members.OrderBy(m => m.FullName).ToList());
+            int pageSize = 10;
+            int pageNumber = (page ?? 1);
+            int totalItemCount = members.Count();
+
+            var pagedMembers = members.Skip((pageNumber - 1) * pageSize).Take(pageSize).ToList();
+
+            ViewBag.PageNumber = pageNumber;
+            ViewBag.PageSize = pageSize;
+            ViewBag.TotalPages = (int)Math.Ceiling((double)totalItemCount / pageSize);
+            ViewBag.TotalItems = totalItemCount;
+
+            return View(pagedMembers);
         }
 
-        // GET: Members/Details/5
         public ActionResult Details(int? id)
         {
             if (id == null)
@@ -54,7 +74,6 @@ namespace Library.Controllers
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
 
-            // Nạp kèm lịch sử mượn sách an toàn bằng Include chuỗi
             Member member = db.Members
                               .Include("Loans")
                               .FirstOrDefault(m => m.MemberID == id);
@@ -66,13 +85,11 @@ namespace Library.Controllers
             return View(member);
         }
 
-        // GET: Members/Create
         public ActionResult Create()
         {
             return View();
         }
 
-        // POST: Members/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
         public ActionResult Create([Bind(Include = "MemberID,FullName,Email,Phone,Address,CardExpiryDate,IsLocked")] Member member)
@@ -84,7 +101,6 @@ namespace Library.Controllers
                 member.FullName = member.FullName?.Trim();
                 member.Address = member.Address?.Trim();
 
-                // Kiểm tra không trùng lặp Email hoặc SĐT
                 if (db.Members.Any(m => m.Email == member.Email))
                 {
                     ModelState.AddModelError("Email", "Email này đã tồn tại trong hệ thống.");
@@ -105,7 +121,6 @@ namespace Library.Controllers
             return View(member);
         }
 
-        // GET: Members/Edit/5
         public ActionResult Edit(int? id)
         {
             if (id == null)
@@ -120,7 +135,6 @@ namespace Library.Controllers
             return View(member);
         }
 
-        // POST: Members/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
         public ActionResult Edit([Bind(Include = "MemberID,FullName,Email,Phone,Address,CardExpiryDate,IsLocked")] Member member)
@@ -132,7 +146,6 @@ namespace Library.Controllers
                 member.FullName = member.FullName?.Trim();
                 member.Address = member.Address?.Trim();
 
-                // Kiểm tra trùng lặp email/SĐT nhưng loại trừ chính ID hiện tại
                 if (db.Members.Any(m => m.Email == member.Email && m.MemberID != member.MemberID))
                 {
                     ModelState.AddModelError("Email", "Email này đã thuộc về thành viên khác.");
@@ -152,7 +165,6 @@ namespace Library.Controllers
             return View(member);
         }
 
-        // POST: Members/ToggleStatus/5 (Khóa / Mở khóa tài khoản)
         [HttpPost]
         [ValidateAntiForgeryToken]
         public ActionResult ToggleStatus(int id)
@@ -170,7 +182,6 @@ namespace Library.Controllers
             return RedirectToAction("Index");
         }
 
-        // GET: Members/Delete/5
         public ActionResult Delete(int? id)
         {
             if (id == null)
@@ -185,14 +196,12 @@ namespace Library.Controllers
             return View(member);
         }
 
-        // POST: Members/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public ActionResult DeleteConfirmed(int id)
         {
             Member member = db.Members.Find(id);
 
-            // Chặn xóa nếu thành viên đã có lịch sử phiếu mượn
             if (member.Loans != null && member.Loans.Count > 0)
             {
                 TempData["Error"] = "Không thể xóa thành viên đã có lịch sử mượn sách. Vui lòng sử dụng tính năng Khóa tài khoản.";

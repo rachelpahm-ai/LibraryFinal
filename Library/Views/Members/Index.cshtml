@@ -8,22 +8,6 @@
 <div class="container-fluid mt-4">
     <h2 class="mb-4">Quản lý thành viên thư viện</h2>
 
-    <!-- Thông báo TempData -->
-    @if (TempData["Success"] != null)
-    {
-        <div class="alert alert-success alert-dismissible fade show" role="alert">
-            @TempData["Success"]
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        </div>
-    }
-    @if (TempData["Error"] != null)
-    {
-        <div class="alert alert-danger alert-dismissible fade show" role="alert">
-            @TempData["Error"]
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        </div>
-    }
-
     <!-- Khung tìm kiếm và lọc -->
     <div class="card shadow-sm mb-4">
         <div class="card-body">
@@ -114,4 +98,27 @@
             </table>
         </div>
     </div>
+
+    <!-- Thanh phân trang thủ công -->
+    @if (ViewBag.TotalPages > 1)
+    {
+        <nav aria-label="Page navigation" class="mt-4">
+            <ul class="pagination justify-content-center">
+                <li class="page-item @(ViewBag.PageNumber == 1 ? "disabled" : "")">
+                    <a class="page-link" href="@Url.Action("Index", new { page = ViewBag.PageNumber - 1, searchTerm = ViewBag.SearchTerm, statusFilter = ViewBag.StatusFilter })">Trước</a>
+                </li>
+
+                @for (int i = 1; i <= ViewBag.TotalPages; i++)
+                {
+                    <li class="page-item @(i == ViewBag.PageNumber ? "active" : "")">
+                        <a class="page-link" href="@Url.Action("Index", new { page = i, searchTerm = ViewBag.SearchTerm, statusFilter = ViewBag.StatusFilter })">@i</a>
+                    </li>
+                }
+
+                <li class="page-item @(ViewBag.PageNumber == ViewBag.TotalPages ? "disabled" : "")">
+                    <a class="page-link" href="@Url.Action("Index", new { page = ViewBag.PageNumber + 1, searchTerm = ViewBag.SearchTerm, statusFilter = ViewBag.StatusFilter })">Sau</a>
+                </li>
+            </ul>
+        </nav>
+    }
 </div>
