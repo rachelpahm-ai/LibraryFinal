@@ -12,7 +12,9 @@
         </div>
         <div class="card-body">
             @using (Html.BeginForm())
-            {
+            {              
+                @Html.AntiForgeryToken()
+
                 @Html.Partial("_MemberForm", Model)
 
                 <div class="mt-4">

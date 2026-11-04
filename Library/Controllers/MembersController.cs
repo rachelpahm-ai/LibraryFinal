@@ -75,7 +75,7 @@ namespace Library.Controllers
         // POST: Members/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Create([Bind(Include = "MemberID,FullName,Email,Phone,Address,IsLocked")] Member member)
+        public ActionResult Create([Bind(Include = "MemberID,FullName,Email,Phone,Address,CardExpiryDate,IsLocked")] Member member)
         {
             if (ModelState.IsValid)
             {
