@@ -267,6 +267,7 @@
   <ItemGroup>
     <Folder Include="App_Data\" />
     <Folder Include="Content\images\" />
+    <Folder Include="Views\Account\" />
     <Folder Include="Views\Index\" />
   </ItemGroup>
   <ItemGroup>

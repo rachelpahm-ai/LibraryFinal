@@ -262,8 +262,6 @@ namespace Library.Controllers
                 return RedirectToAction("Index");
             }
 
-            ModelState.Remove("NewPassword");
-            ModelState.Remove("ConfirmPassword");
             model.NewPassword = null;
             model.ConfirmPassword = null;
 

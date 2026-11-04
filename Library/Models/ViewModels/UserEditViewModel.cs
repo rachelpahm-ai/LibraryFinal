@@ -21,7 +21,7 @@ namespace Library.Models.ViewModels
         [DataType(DataType.Password)]
         public string NewPassword { get; set; }
 
-        [Display(Name = "Xác nhận mật khẩu mới")]
+        [Display(Name = " Xác nhận mật khẩu mới.")]
         [DataType(DataType.Password)]
         [Compare("NewPassword",
             ErrorMessage = "Xác nhận mật khẩu không khớp.")]
