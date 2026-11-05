@@ -131,6 +131,10 @@
     <Compile Include="App_Start\RouteConfig.cs" />
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\LibraryController.cs" />
+
+    <Compile Include="Controllers\MembersController.cs" />
+    <Compile Include="Controllers\LoansController.cs" />
+
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
@@ -150,12 +154,15 @@
     <Compile Include="Models\Loan.cs">
       <DependentUpon>Model1.tt</DependentUpon>
     </Compile>
+    <Compile Include="Models\LoanCreateViewModel.cs" />
     <Compile Include="Models\LoanDetail.cs">
       <DependentUpon>Model1.tt</DependentUpon>
     </Compile>
+    <Compile Include="Models\LoanMetadata.cs" />
     <Compile Include="Models\Member.cs">
       <DependentUpon>Model1.tt</DependentUpon>
     </Compile>
+    <Compile Include="Models\MemberMetadata.cs" />
     <Compile Include="Models\Model1.Context.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
@@ -248,6 +255,21 @@
     <Content Include="Views\Shared\LibraryLayout.cshtml" />
     <Content Include="Views\Library\Index.cshtml" />
     <Content Include="Views\Library\About.cshtml" />
+
+    <Content Include="Views\Members\Index.cshtml" />
+    <Content Include="Views\Members\_MemberForm.cshtml" />
+    <Content Include="Views\Members\Details.cshtml" />
+    <Content Include="Views\Members\Delete.cshtml" />
+    <Content Include="Views\Members\Create.cshtml" />
+    <Content Include="Views\Members\Edit.cshtml" />
+
+    <Content Include="Views\Loans\View.cshtml" />
+    <Content Include="Views\Loans\Create.cshtml" />
+    <Content Include="Views\Loans\Index.cshtml" />
+    <Content Include="Views\Loans\Details.cshtml" />
+    <Content Include="Views\Loans\Cancel.cshtml" />
+    <Content Include="Views\Loans\_ViewStart.cshtml" />
+
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

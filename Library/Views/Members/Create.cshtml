@@ -1,0 +1,27 @@
+﻿@model Library.Models.Member
+
+@{
+    ViewBag.Title = "Thêm thành viên mới";
+    Layout = "~/Views/Shared/LibraryLayout.cshtml";
+}
+
+<div class="container mt-4" style="max-width: 700px;">
+    <div class="card shadow-sm">
+        <div class="card-header bg-primary text-white">
+            <h4 class="mb-0">Thêm thành viên mới</h4>
+        </div>
+        <div class="card-body">
+            @using (Html.BeginForm())
+            {              
+                @Html.AntiForgeryToken()
+
+                @Html.Partial("_MemberForm", Model)
+
+                <div class="mt-4">
+                    <button type="submit" class="btn btn-primary">Lưu lại</button>
+                    @Html.ActionLink("Quay lại danh sách", "Index", null, new { @class = "btn btn-secondary ms-2" })
+                </div>
+            }
+        </div>
+    </div>
+</div>

@@ -1,0 +1,124 @@
+﻿@model IEnumerable<Library.Models.Member>
+
+@{
+    ViewBag.Title = "Quản lý thành viên";
+    Layout = "~/Views/Shared/LibraryLayout.cshtml";
+}
+
+<div class="container-fluid mt-4">
+    <h2 class="mb-4">Quản lý thành viên thư viện</h2>
+
+    <!-- Khung tìm kiếm và lọc -->
+    <div class="card shadow-sm mb-4">
+        <div class="card-body">
+            <div class="row align-items-center mb-3">
+                <div class="col-md-6">
+                    @Html.ActionLink("Thêm thành viên mới", "Create", null, new { @class = "btn btn-primary" })
+                </div>
+            </div>
+
+            @using (Html.BeginForm("Index", "Members", FormMethod.Get, new { @class = "row g-3" }))
+            {
+                <div class="col-md-5">
+                    <input type="text" name="searchTerm" value="@ViewBag.SearchTerm" class="form-control" placeholder="Tìm kiếm theo họ tên, email, số điện thoại..." />
+                </div>
+                <div class="col-md-4">
+                    <select name="statusFilter" class="form-select">
+                        <option value="">-- Tất cả trạng thái --</option>
+                        <option value="False" @(ViewBag.StatusFilter == "False" ? "selected" : "")>Hoạt động</option>
+                        <option value="True" @(ViewBag.StatusFilter == "True" ? "selected" : "")>Bị khóa</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <button type="submit" class="btn btn-secondary">Lọc dữ liệu</button>
+                    <a href="@Url.Action("Index")" class="btn btn-outline-secondary">Làm mới</a>
+                </div>
+            }
+        </div>
+    </div>
+
+    <!-- Bảng hiển thị danh sách -->
+    <div class="card shadow-sm">
+        <div class="card-body table-responsive">
+            <table class="table table-hover align-middle bn-table">
+                <thead class="table-light">
+                    <tr>
+                        <th>Họ tên</th>
+                        <th>Email</th>
+                        <th>Số điện thoại</th>
+                        <th>Địa chỉ</th>
+                        <th class="text-center">Trạng thái</th>
+                        <th class="text-center" style="width: 260px;">Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model == null || !Model.Any())
+                    {
+                        <tr>
+                            <td colspan="6" class="text-center text-muted py-4">Không tìm thấy thành viên nào trong hệ thống.</td>
+                        </tr>
+                    }
+                    else
+                    {
+                        foreach (var item in Model)
+                        {
+                            <tr>
+                                <td><strong>@item.FullName</strong></td>
+                                <td>@item.Email</td>
+                                <td>@item.Phone</td>
+                                <td>@item.Address</td>
+                                <td class="text-center">
+                                    @if (item.IsLocked == true)
+                                    {
+                                        <span class="badge bn-badge-out bg-danger text-white">Bị khóa</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bn-badge-ok bg-success text-white">Hoạt động</span>
+                                    }
+                                </td>
+                                <td class="text-center">
+                                    @Html.ActionLink("Xem", "Details", new { id = item.MemberID }, new { @class = "btn btn-info btn-sm text-white" })
+                                    @Html.ActionLink("Sửa", "Edit", new { id = item.MemberID }, new { @class = "btn btn-warning btn-sm text-dark" })
+
+                                    @using (Html.BeginForm("ToggleStatus", "Members", new { id = item.MemberID }, FormMethod.Post, new { @style = "display:inline;" }))
+                                    {
+                                        @Html.AntiForgeryToken()
+                                        <button type="submit" class="btn @(item.IsLocked == true ? "btn-success" : "btn-secondary") btn-sm text-white" onclick="return confirm('Bạn có chắc chắn muốn đổi trạng thái tài khoản này không?');">
+                                            @(item.IsLocked == true ? "Mở khóa" : "Khóa")
+                                        </button>
+                                    }
+
+                                    @Html.ActionLink("Xóa", "Delete", new { id = item.MemberID }, new { @class = "btn btn-danger btn-sm text-white" })
+                                </td>
+                            </tr>
+                        }
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Thanh phân trang thủ công -->
+    @if (ViewBag.TotalPages > 1)
+    {
+        <nav aria-label="Page navigation" class="mt-4">
+            <ul class="pagination justify-content-center">
+                <li class="page-item @(ViewBag.PageNumber == 1 ? "disabled" : "")">
+                    <a class="page-link" href="@Url.Action("Index", new { page = ViewBag.PageNumber - 1, searchTerm = ViewBag.SearchTerm, statusFilter = ViewBag.StatusFilter })">Trước</a>
+                </li>
+
+                @for (int i = 1; i <= ViewBag.TotalPages; i++)
+                {
+                    <li class="page-item @(i == ViewBag.PageNumber ? "active" : "")">
+                        <a class="page-link" href="@Url.Action("Index", new { page = i, searchTerm = ViewBag.SearchTerm, statusFilter = ViewBag.StatusFilter })">@i</a>
+                    </li>
+                }
+
+                <li class="page-item @(ViewBag.PageNumber == ViewBag.TotalPages ? "disabled" : "")">
+                    <a class="page-link" href="@Url.Action("Index", new { page = ViewBag.PageNumber + 1, searchTerm = ViewBag.SearchTerm, statusFilter = ViewBag.StatusFilter })">Sau</a>
+                </li>
+            </ul>
+        </nav>
+    }
+</div>

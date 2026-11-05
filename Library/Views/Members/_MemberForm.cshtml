@@ -1,0 +1,39 @@
+﻿@model Library.Models.Member
+
+@Html.ValidationSummary(true, "", new { @class = "text-danger mb-3" })
+
+<div class="mb-3">
+    @Html.LabelFor(model => model.FullName, htmlAttributes: new { @class = "form-label fw-bold" })
+    @Html.EditorFor(model => model.FullName, new { htmlAttributes = new { @class = "form-control", placeholder = "Nhập họ tên đầy đủ..." } })
+    @Html.ValidationMessageFor(model => model.FullName, "", new { @class = "text-danger" })
+</div>
+
+<div class="mb-3">
+    @Html.LabelFor(model => model.Email, htmlAttributes: new { @class = "form-label fw-bold" })
+    @Html.EditorFor(model => model.Email, new { htmlAttributes = new { @class = "form-control", placeholder = "Nhập email (ví dụ: email@domain.com)..." } })
+    @Html.ValidationMessageFor(model => model.Email, "", new { @class = "text-danger" })
+</div>
+
+<div class="mb-3">
+    @Html.LabelFor(model => model.Phone, htmlAttributes: new { @class = "form-label fw-bold" })
+    @Html.EditorFor(model => model.Phone, new { htmlAttributes = new { @class = "form-control", placeholder = "Nhập số điện thoại (10 chữ số, bắt đầu bằng 0)..." } })
+    @Html.ValidationMessageFor(model => model.Phone, "", new { @class = "text-danger" })
+</div>
+
+<div class="mb-3">
+    @Html.LabelFor(model => model.Address, htmlAttributes: new { @class = "form-label fw-bold" })
+    @Html.EditorFor(model => model.Address, new { htmlAttributes = new { @class = "form-control", placeholder = "Nhập địa chỉ..." } })
+    @Html.ValidationMessageFor(model => model.Address, "", new { @class = "text-danger" })
+</div>
+
+<div class="mb-3">
+    @Html.LabelFor(model => model.CardExpiryDate, htmlAttributes: new { @class = "form-label fw-bold" })
+    @Html.TextBoxFor(model => model.CardExpiryDate, "{0:yyyy-MM-dd}", new { @class = "form-control", @type = "date" })
+    @Html.ValidationMessageFor(model => model.CardExpiryDate, "", new { @class = "text-danger" })
+</div>
+
+<div class="mb-3 form-check">
+    @Html.EditorFor(model => model.IsLocked, new { htmlAttributes = new { @class = "form-check-input" } })
+    @Html.LabelFor(model => model.IsLocked, htmlAttributes: new { @class = "form-check-label fw-bold" })
+    @Html.ValidationMessageFor(model => model.IsLocked, "", new { @class = "text-danger" })
+</div>

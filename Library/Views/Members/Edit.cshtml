@@ -1,0 +1,27 @@
+﻿@model Library.Models.Member
+
+@{
+    ViewBag.Title = "Chỉnh sửa thông tin thành viên";
+    Layout = "~/Views/Shared/LibraryLayout.cshtml";
+}
+
+<div class="container mt-4" style="max-width: 700px;">
+    <div class="card shadow-sm">
+        <div class="card-header bg-warning text-dark">
+            <h4 class="mb-0">Chỉnh sửa thông tin thành viên</h4>
+        </div>
+        <div class="card-body">
+            @using (Html.BeginForm())
+            {
+                @Html.AntiForgeryToken()
+                @Html.HiddenFor(model => model.MemberID)
+                @Html.Partial("_MemberForm", Model)
+
+                <div class="mt-4">
+                    <button type="submit" class="btn btn-warning text-dark">Lưu thay đổi</button>
+                    @Html.ActionLink("Quay lại danh sách", "Index", null, new { @class = "btn btn-secondary ms-2" })
+                </div>
+            }
+        </div>
+    </div>
+</div>
