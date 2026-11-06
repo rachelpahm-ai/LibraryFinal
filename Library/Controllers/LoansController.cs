@@ -248,6 +248,37 @@ namespace Library.Controllers
             return View(loan);
         }
 
+        // POST: Loans/Cancel/5
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult CancelConfirmed(int id)
+        {
+            var loan = db.Loans
+                .Include(l => l.LoanDetails)
+                .FirstOrDefault(l => l.LoanID == id);
+
+            if (loan == null)
+            {
+                return HttpNotFound();
+            }
+
+            if (loan.ReturnDate != null)
+            {
+                TempData["Error"] = "Không thể hủy phiếu đã trả.";
+                return RedirectToAction("Index");
+            }
+
+            db.LoanDetails.RemoveRange(loan.LoanDetails);
+            db.Loans.Remove(loan);
+            db.SaveChanges();
+
+            TempData["Success"] = "Hủy phiếu mượn thành công.";
+
+            return RedirectToAction("Index");
+        }
+
+
+
         // Tải danh sách thành viên và sách cho form
         private void LoadCreateLists(LoanCreateViewModel model)
         {
