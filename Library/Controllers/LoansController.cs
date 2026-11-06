@@ -119,7 +119,7 @@ namespace Library.Controllers
             // Kiểm tra thành viên
             var member = db.Members.FirstOrDefault(m =>
                 m.MemberID == model.MemberID &&
-                m.IsLocked == false &&
+                (m.IsLocked == false || m.IsLocked == null) &&
                 (!m.CardExpiryDate.HasValue ||
                  m.CardExpiryDate.Value >= DateTime.Today));
 
@@ -225,6 +225,35 @@ namespace Library.Controllers
 
             return View(loan);
         }
+    
+        
+        // GET: Loans/Return/5
+        public ActionResult Return(int id)
+        {
+            var loan = db.Loans
+                .Include(l => l.LoanDetails)
+                .FirstOrDefault(l => l.LoanID == id);
+
+            if (loan == null)
+            {
+                return HttpNotFound();
+            }
+
+            if (loan.ReturnDate != null)
+            {
+                TempData["Error"] = "Phiếu này đã được trả.";
+                return RedirectToAction("Index");
+            }
+
+            loan.ReturnDate = DateTime.Today;
+            loan.TotalFine = 0;
+
+            db.SaveChanges();
+
+            TempData["Success"] = "Trả sách thành công.";
+
+            return RedirectToAction("Details", new { id = loan.LoanID });
+        }
 
         // GET: Loans/Cancel/5
         public ActionResult Cancel(int id)
@@ -248,13 +277,44 @@ namespace Library.Controllers
             return View(loan);
         }
 
+        // POST: Loans/Cancel/5
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult CancelConfirmed(int id)
+        {
+            var loan = db.Loans
+                .Include(l => l.LoanDetails)
+                .FirstOrDefault(l => l.LoanID == id);
+
+            if (loan == null)
+            {
+                return HttpNotFound();
+            }
+
+            if (loan.ReturnDate != null)
+            {
+                TempData["Error"] = "Không thể hủy phiếu đã trả.";
+                return RedirectToAction("Index");
+            }
+
+            db.LoanDetails.RemoveRange(loan.LoanDetails);
+            db.Loans.Remove(loan);
+            db.SaveChanges();
+
+            TempData["Success"] = "Hủy phiếu mượn thành công.";
+
+            return RedirectToAction("Index");
+        }
+
+
+
         // Tải danh sách thành viên và sách cho form
         private void LoadCreateLists(LoanCreateViewModel model)
         {
             // Danh sách thành viên đủ điều kiện mượn
             model.Members = db.Members
                 .Where(m =>
-                    m.IsLocked == false &&
+                    (m.IsLocked == false || m.IsLocked == null) &&
                     (!m.CardExpiryDate.HasValue ||
                      m.CardExpiryDate.Value >= DateTime.Today))
                 .OrderBy(m => m.FullName)

@@ -34,9 +34,10 @@
     </div>
 </div>
 
-@using (Html.BeginForm("Cancel", "Loans", FormMethod.Post))
+@using (Html.BeginForm("CancelConfirmed", "Loans", FormMethod.Post))
 {
     @Html.AntiForgeryToken()
+
     @Html.Hidden("id", Model.LoanID)
 
     <button type="submit" class="btn btn-danger">
