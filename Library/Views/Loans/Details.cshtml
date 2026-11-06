@@ -1,4 +1,4 @@
-﻿@model Library.Models.Loan
+﻿s@model Library.Models.Loan
 
 @{
     ViewBag.Title = "Chi tiết phiếu mượn";
@@ -70,6 +70,10 @@
 
     @if (Model.ReturnDate == null)
     {
+        @Html.ActionLink("Trả sách", "Return", "Loans",
+            new { id = Model.LoanID },
+            new { @class = "btn btn-success" })
+
         @Html.ActionLink("Hủy phiếu", "Cancel", "Loans",
             new { id = Model.LoanID },
             new { @class = "btn btn-danger" })

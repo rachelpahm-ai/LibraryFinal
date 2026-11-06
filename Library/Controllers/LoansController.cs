@@ -225,6 +225,35 @@ namespace Library.Controllers
 
             return View(loan);
         }
+    
+        
+        // GET: Loans/Return/5
+        public ActionResult Return(int id)
+        {
+            var loan = db.Loans
+                .Include(l => l.LoanDetails)
+                .FirstOrDefault(l => l.LoanID == id);
+
+            if (loan == null)
+            {
+                return HttpNotFound();
+            }
+
+            if (loan.ReturnDate != null)
+            {
+                TempData["Error"] = "Phiếu này đã được trả.";
+                return RedirectToAction("Index");
+            }
+
+            loan.ReturnDate = DateTime.Today;
+            loan.TotalFine = 0;
+
+            db.SaveChanges();
+
+            TempData["Success"] = "Trả sách thành công.";
+
+            return RedirectToAction("Details", new { id = loan.LoanID });
+        }
 
         // GET: Loans/Cancel/5
         public ActionResult Cancel(int id)

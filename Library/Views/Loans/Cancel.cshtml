@@ -34,15 +34,16 @@
     </div>
 </div>
 
-Html.BeginForm("CancelConfirmed", "Loans", FormMethod.Post)
+@using (Html.BeginForm("CancelConfirmed", "Loans", FormMethod.Post))
 {
-@Html.AntiForgeryToken()
-@Html.Hidden("id", Model.LoanID)
+    @Html.AntiForgeryToken()
 
-<button type="submit" class="btn btn-danger">
-    Xác nhận hủy
-</button>
+    @Html.Hidden("id", Model.LoanID)
 
-@Html.ActionLink("Quay lại", "Index", "Loans",
-    null, new { @class = "btn btn-default" })
+    <button type="submit" class="btn btn-danger">
+        Xác nhận hủy
+    </button>
+
+    @Html.ActionLink("Quay lại", "Index", "Loans",
+        null, new { @class = "btn btn-default" })
 }
