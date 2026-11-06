@@ -119,7 +119,7 @@ namespace Library.Controllers
             // Kiểm tra thành viên
             var member = db.Members.FirstOrDefault(m =>
                 m.MemberID == model.MemberID &&
-                m.IsLocked == false &&
+                (m.IsLocked == false || m.IsLocked == null) &&
                 (!m.CardExpiryDate.HasValue ||
                  m.CardExpiryDate.Value >= DateTime.Today));
 
@@ -314,7 +314,7 @@ namespace Library.Controllers
             // Danh sách thành viên đủ điều kiện mượn
             model.Members = db.Members
                 .Where(m =>
-                    m.IsLocked == false &&
+                    (m.IsLocked == false || m.IsLocked == null) &&
                     (!m.CardExpiryDate.HasValue ||
                      m.CardExpiryDate.Value >= DateTime.Today))
                 .OrderBy(m => m.FullName)
