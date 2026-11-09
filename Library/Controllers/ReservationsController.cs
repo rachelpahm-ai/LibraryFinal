@@ -15,7 +15,6 @@ namespace Library.Controllers
         private LibraryManagementEntities db = new LibraryManagementEntities();
 
         // GET: Reservations
-        // GET: Reservations
         public ActionResult Index(
             string search,
             string status,
@@ -99,7 +98,6 @@ namespace Library.Controllers
         }
 
         // GET: Reservations/Create
-        // GET: Reservations/Create
         public ActionResult Create()
         {
             ViewBag.Title = "Thêm đặt trước";
@@ -138,6 +136,11 @@ namespace Library.Controllers
             ModelState.Remove("ReserveDate");
             ModelState.Remove("Status");
 
+            // Thay thông báo bắt buộc mặc định của MVC bằng tiếng Việt.
+            // Vẫn tự xác thực cả hai trường phía server bên dưới.
+            ModelState.Remove("MemberID");
+            ModelState.Remove("BookID");
+
             // Kiểm tra thành viên tồn tại và không bị khóa.
             bool memberValid = db.Members.Any(m =>
                 m.MemberID == reservation.MemberID &&
@@ -162,7 +165,7 @@ namespace Library.Controllers
             }
 
             // Chặn cùng thành viên đặt cùng sách khi đang Chờ.
-            bool duplicate = db.Reservations.Any(r =>
+            bool duplicate = memberValid && bookValid && db.Reservations.Any(r =>
                 r.MemberID == reservation.MemberID &&
                 r.BookID == reservation.BookID &&
                 r.Status == "Chờ");
@@ -247,6 +250,8 @@ namespace Library.Controllers
             ModelState.Remove("MemberID");
             ModelState.Remove("BookID");
             ModelState.Remove("ReserveDate");
+            // Xóa lỗi Required mặc định để thông báo trạng thái được Việt hóa.
+            ModelState.Remove("Status");
 
             string newStatus = input.Status;
 
@@ -282,7 +287,6 @@ namespace Library.Controllers
             return View(reservation);
         }
 
-        // GET: Reservations/Delete/5
         // GET: Reservations/Delete/5
         public ActionResult Delete(int? id)
         {
