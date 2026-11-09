@@ -2,29 +2,52 @@
 
 @{
     ViewBag.Title = "Thêm mới Thể loại";
+    Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<div class="container mt-4" style="max-width: 600px;">
-    <h2>Thêm mới Thể loại</h2>
-    <hr />
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-7 col-lg-6">
 
-    @using (Html.BeginForm())
-    {
-        @Html.AntiForgeryToken()
+            <!-- Khung Card bọc form tạo hiệu ứng nổi, bo góc và sạch sẽ -->
+            <div class="card shadow-sm border-0 rounded-4 bg-white">
+                <div class="card-body p-4 p-md-5">
 
-        <div class="form-horizontal">
-            @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+                    <!-- Tiêu đề và mô tả ngắn gọn -->
+                    <div class="mb-4 pb-2 border-bottom">
+                        <h3 class="fw-bold text-dark mb-1">
+                            <i class="fas fa-folder-plus text-primary me-2"></i> Thêm mới Thể loại
+                        </h3>
+                        <p class="text-muted small mb-0">Điền tên thể loại sách mới vào hệ thống quản lý thư viện</p>
+                    </div>
 
-            <div class="mb-3">
-                @Html.LabelFor(model => model.CategoryName, htmlAttributes: new { @class = "form-label fw-bold" })
-                @Html.EditorFor(model => model.CategoryName, new { htmlAttributes = new { @class = "form-control", placeholder = "Nhập tên thể loại..." } })
-                @Html.ValidationMessageFor(model => model.CategoryName, "", new { @class = "text-danger" })
+                    @using (Html.BeginForm())
+                    {
+                        @Html.AntiForgeryToken()
+
+                        <div class="form-horizontal">
+                            @Html.ValidationSummary(true, "", new { @class = "text-danger mb-3 small" })
+
+                            <!-- Ô nhập tên thể loại -->
+                            <div class="mb-4">
+                                @Html.LabelFor(model => model.CategoryName, htmlAttributes: new { @class = "form-label fw-semibold text-secondary" })
+                                @Html.EditorFor(model => model.CategoryName, new { htmlAttributes = new { @class = "form-control form-control-lg fs-6 py-2 px-3 rounded-3 border-light-subtle", placeholder = "Ví dụ: Công nghệ thông tin, Văn học..." } })
+                                @Html.ValidationMessageFor(model => model.CategoryName, "", new { @class = "text-danger small mt-1 d-block" })
+                            </div>
+
+                            <!-- Nhóm nút bấm hành động -->
+                            <div class="d-flex align-items-center gap-2 pt-2">
+                                <button type="submit" class="btn btn-success px-4 py-2 fw-semibold rounded-3 shadow-sm">
+                                    <i class="fas fa-save me-1"></i> Lưu thông tin
+                                </button>
+                                @Html.ActionLink("Quay lại danh sách", "Index", null, new { @class = "btn btn-outline-secondary px-4 py-2 fw-semibold rounded-3" })
+                            </div>
+                        </div>
+                    }
+
+                </div>
             </div>
 
-            <div class="mb-3">
-                <input type="submit" value="Lưu" class="btn btn-success" />
-                @Html.ActionLink("Quay lại danh sách", "Index", null, new { @class = "btn btn-secondary ms-2" })
-            </div>
         </div>
-    }
+    </div>
 </div>
