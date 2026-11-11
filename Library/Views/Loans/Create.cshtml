@@ -1,0 +1,89 @@
+﻿@model Library.Models.LoanCreateViewModel
+
+@{
+    ViewBag.Title = "Tạo phiếu mượn";
+}
+
+<h2>Tạo phiếu mượn</h2>
+
+@using (Html.BeginForm("Create", "Loans", FormMethod.Post))
+{
+    @Html.AntiForgeryToken()
+
+    @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+
+    <div class="form-group">
+        @Html.LabelFor(m => m.MemberID, "Thành viên")
+        @Html.DropDownListFor(
+            m => m.MemberID,
+            Model.Members,
+            "-- Chọn thành viên --",
+            new { @class = "form-control" })
+
+        @Html.ValidationMessageFor(
+            m => m.MemberID,
+            "",
+            new { @class = "text-danger" })
+    </div>
+
+    <div class="form-group">
+        @Html.LabelFor(m => m.LoanDate, "Ngày mượn")
+
+        @Html.TextBoxFor(
+            m => m.LoanDate,
+            "{0:yyyy-MM-dd}",
+            new
+            {
+                @class = "form-control",
+                type = "date",
+                @readonly = "readonly"
+            })
+    </div>
+
+    <div class="form-group">
+        @Html.LabelFor(m => m.DueDate, "Hạn trả")
+
+        @Html.TextBoxFor(
+            m => m.DueDate,
+            "{0:yyyy-MM-dd}",
+            new
+            {
+                @class = "form-control",
+                type = "date"
+            })
+
+        @Html.ValidationMessageFor(
+            m => m.DueDate,
+            "",
+            new { @class = "text-danger" })
+    </div>
+
+    <div class="form-group">
+        <label>Chọn sách</label>
+
+        @Html.ListBoxFor(
+            m => m.SelectedBookIDs,
+            Model.Books,
+            new { @class = "form-control", size = 8 })
+
+        @Html.ValidationMessageFor(
+            m => m.SelectedBookIDs,
+            "",
+            new { @class = "text-danger" })
+
+        <small class="text-muted">
+            Giữ Ctrl để chọn nhiều sách.
+        </small>
+    </div>
+
+    <button type="submit" class="btn btn-primary">
+        Tạo phiếu mượn
+    </button>
+
+    @Html.ActionLink(
+        "Quay lại",
+        "Index",
+        "Loans",
+        null,
+        new { @class = "btn btn-secondary" })
+}
