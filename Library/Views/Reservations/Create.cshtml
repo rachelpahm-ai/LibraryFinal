@@ -1,0 +1,85 @@
+﻿@model Library.Models.Reservation
+
+@{
+    ViewBag.Title = "Thêm đặt trước";
+}
+
+<h2>Thêm yêu cầu đặt trước</h2>
+
+<div class="bn-panel p-4">
+    @using (Html.BeginForm("Create", "Reservations", FormMethod.Post))
+    {
+        @Html.AntiForgeryToken()
+
+        @Html.ValidationSummary(
+            false, "", new { @class = "text-danger" })
+
+        <div class="mb-3">
+            <label for="MemberID" class="form-label">
+                Thành viên
+            </label>
+
+            @Html.DropDownList(
+                "MemberID",
+                null,
+                "-- Chọn thành viên --",
+                new { @class = "form-select" })
+
+            @Html.ValidationMessageFor(
+                m => m.MemberID,
+                "",
+                new { @class = "text-danger" })
+
+            <div class="form-text">
+                Chỉ hiển thị thành viên đang hoạt động.
+            </div>
+        </div>
+
+        <div class="mb-3">
+            <label for="BookID" class="form-label">
+                Sách
+            </label>
+
+            @Html.DropDownList(
+                "BookID",
+                null,
+                "-- Chọn sách --",
+                new { @class = "form-select" })
+
+            @Html.ValidationMessageFor(
+                m => m.BookID,
+                "",
+                new { @class = "text-danger" })
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Ngày đặt</label>
+
+            <p class="form-control-plaintext">
+                @(Model.ReserveDate.HasValue
+                    ? Model.ReserveDate.Value.ToString("dd/MM/yyyy")
+                    : "")
+            </p>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Trạng thái</label>
+
+            <div>
+                <span class="badge bg-warning text-dark">
+                    Chờ
+                </span>
+            </div>
+        </div>
+
+        <button type="submit" class="btn btn-primary">
+            Lưu đặt trước
+        </button>
+
+        @Html.ActionLink(
+            "Quay lại",
+            "Index",
+            null,
+            new { @class = "btn btn-outline-secondary" })
+     }
+</div>

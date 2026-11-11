@@ -1,0 +1,88 @@
+﻿@model Library.Models.Reservation
+
+@{
+    ViewBag.Title = "Cập nhật đặt trước";
+
+    // Yêu cầu đã kết thúc không được quay lại trạng thái Chờ.
+    var statuses = Model.Status == "Chờ"
+        ? new[] { "Chờ", "Đã nhận", "Hủy" }
+        : new[] { "Đã nhận", "Hủy" };
+}
+
+<h2>Cập nhật đặt trước</h2>
+
+<div class="bn-panel p-4">
+    @using (Html.BeginForm("Edit", "Reservations", FormMethod.Post))
+    {
+        @Html.AntiForgeryToken()
+        @Html.HiddenFor(m => m.ReserveID)
+
+        @Html.ValidationSummary(
+            false, "", new { @class = "text-danger" })
+
+        <div class="mb-3">
+            <label class="form-label">Mã đặt trước</label>
+            <p class="form-control-plaintext">@Model.ReserveID</p>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Thành viên</label>
+
+            <p class="form-control-plaintext">
+                @(Model.Member != null
+                    ? Model.Member.FullName
+                    : "Không có thông tin")
+            </p>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Sách</label>
+
+            <p class="form-control-plaintext">
+                @(Model.Book != null
+                    ? Model.Book.Title
+                    : "Không có thông tin")
+            </p>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Ngày đặt</label>
+
+            <p class="form-control-plaintext">
+                @(Model.ReserveDate.HasValue
+                    ? Model.ReserveDate.Value.ToString("dd/MM/yyyy")
+                    : "Chưa có ngày")
+            </p>
+        </div>
+
+        <div class="mb-3">
+            <label for="Status" class="form-label">
+                Trạng thái
+            </label>
+
+            @Html.DropDownListFor(
+                m => m.Status,
+                new SelectList(statuses, Model.Status),
+                new { @class = "form-select" })
+
+            @Html.ValidationMessageFor(
+                m => m.Status,
+                "",
+                new { @class = "text-danger" })
+
+            <div class="form-text">
+                Yêu cầu đã Hủy hoặc Đã nhận không thể chuyển về Chờ.
+            </div>
+        </div>
+
+        <button type="submit" class="btn btn-primary">
+            Lưu thay đổi
+        </button>
+
+        @Html.ActionLink(
+            "Quay lại",
+            "Index",
+            null,
+            new { @class = "btn btn-outline-secondary" })
+     }
+</div>    

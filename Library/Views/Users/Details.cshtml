@@ -1,0 +1,35 @@
+﻿@model Library.Models.Account
+
+@{
+    ViewBag.Title = "Chi tiết tài khoản";
+    Layout = "~/Views/Shared/LibraryLayout.cshtml";
+}
+
+<h2>Chi tiết tài khoản nhân viên</h2>
+
+<div class="bn-panel p-4">
+    <dl class="row">
+        <dt class="col-sm-3">Mã tài khoản</dt>
+        <dd class="col-sm-9">@Model.AccountID</dd>
+
+        <dt class="col-sm-3">Tên đăng nhập</dt>
+        <dd class="col-sm-9">@Model.Username</dd>
+
+        <dt class="col-sm-3">Vai trò</dt>
+        <dd class="col-sm-9">
+            @Model.Role
+        </dd>
+    </dl>
+
+    @Html.ActionLink(
+        "Sửa",
+        "Edit",
+        new { id = Model.AccountID },
+        new { @class = "btn btn-primary" })
+
+    @Html.ActionLink(
+        "Quay lại",
+        "Index",
+        null,
+        new { @class = "btn btn-outline-secondary" })
+</div>
