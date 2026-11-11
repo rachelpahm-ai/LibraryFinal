@@ -134,6 +134,8 @@
     <Compile Include="Controllers\CategoriesController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\LibraryController.cs" />
+    <Compile Include="Controllers\LoansController.cs" />
+    <Compile Include="Controllers\MembersController.cs" />
     <Content Include="Views\Members\Index.cshtml" />
     <Content Include="Views\Members\_MemberForm.cshtml" />
     <Content Include="Views\Members\Details.cshtml" />
