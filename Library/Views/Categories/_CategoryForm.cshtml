@@ -1,0 +1,11 @@
+﻿@model Library.Models.Category
+
+<div class="form-horizontal">
+    @Html.ValidationSummary(true, "", new { @class = "text-danger mb-3 small" })
+
+    <div class="mb-3">
+        @Html.LabelFor(model => model.CategoryName, htmlAttributes: new { @class = "form-label fw-semibold text-secondary" })
+        @Html.EditorFor(model => model.CategoryName, new { htmlAttributes = new { @class = "form-control form-control-lg fs-6 py-2 px-3 rounded-3 border-light-subtle", placeholder = "Nhập tên thể loại..." } })
+        @Html.ValidationMessageFor(model => model.CategoryName, "", new { @class = "text-danger small mt-1 d-block" })
+    </div>
+</div>
