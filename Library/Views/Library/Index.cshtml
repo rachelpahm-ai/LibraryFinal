@@ -1,34 +1,10 @@
 ﻿
 @model IEnumerable<Library.Models.BookCardViewModel>
-@using System
 @using System.Linq
 
 @{
     ViewBag.Title = "Trang chủ";
     Layout = "~/Views/Shared/LibraryLayout.cshtml";
-
-    // Lấy danh sách sách mẫu từ LibraryController
-    var books = (Model ?? Enumerable.Empty<Library.Models.BookCardViewModel>())
-        .Where(b => b.IsActive != false)
-        .ToList();
-
-    // Thống kê dữ liệu mẫu
-    var totalBooks = books.Count;
-    var available = books.Sum(b => b.StockQuantity);
-    var totalCategories = books.Select(b => b.CategoryName)
-                               .Distinct()
-                               .Count();
-
-    // Xử lý tìm kiếm tạm trên dữ liệu mẫu
-    var search = (Request.QueryString["search"] ?? "").Trim();
-
-    var filteredBooks = string.IsNullOrWhiteSpace(search)
-        ? books
-        : books.Where(b =>
-            (b.Title ?? "").IndexOf(search, StringComparison.OrdinalIgnoreCase) >= 0 ||
-            (b.AuthorName ?? "").IndexOf(search, StringComparison.OrdinalIgnoreCase) >= 0 ||
-            (b.CategoryName ?? "").IndexOf(search, StringComparison.OrdinalIgnoreCase) >= 0
-        ).ToList();
 }
 
 <!-- HERO SECTION -->
@@ -38,16 +14,20 @@
 
         <p>
             Kho học liệu điện tử HUFLIT:
-            tra cứu, mượn và đặt trước sách ngay trên một trang.
+            tra cứu, mượn và đặt trước sách
+            ngay trên một trang.
         </p>
 
         <!-- Thanh tìm kiếm -->
-        @using (Html.BeginForm("Index", "Library", FormMethod.Get,
+        @using (Html.BeginForm(
+            "Index",
+            "Library",
+            FormMethod.Get,
             new { @class = "bn-search", role = "search" }))
         {
             <input type="search"
                    name="search"
-                   value="@search"
+                   value="@ViewBag.Search"
                    placeholder="Nhập tên sách, tác giả hoặc thể loại"
                    aria-label="Tìm sách" />
 
@@ -57,27 +37,37 @@
         }
     </div>
 
-    <!-- THỐNG KÊ -->
+    <!-- THỐNG KÊ TỪ DATABASE -->
     <div class="bn-stats">
 
         <div class="bn-stat hl">
-            <b>@totalBooks</b>
-            <span>đầu sách trong kho</span>
+            <b>@ViewBag.TotalBooks</b>
+            <span>Tổng đầu sách</span>
         </div>
 
         <div class="bn-stat">
-            <b>@available</b>
-            <span>bản sách trong kho</span>
+            <b>@ViewBag.Available</b>
+            <span>Bản sách trong kho</span>
         </div>
 
         <div class="bn-stat">
-            <b>@totalCategories</b>
-            <span>thể loại</span>
+            <b>@ViewBag.TotalCategories</b>
+            <span>Thể loại</span>
         </div>
 
         <div class="bn-stat">
-            <b>—</b>
-            <span>thành viên</span>
+            <b>@ViewBag.TotalMembers</b>
+            <span>Thành viên hoạt động</span>
+        </div>
+
+        <div class="bn-stat">
+            <b>@ViewBag.TotalLoans</b>
+            <span>Phiếu chưa ghi nhận trả</span>
+        </div>
+
+        <div class="bn-stat">
+            <b>@ViewBag.PendingReservations</b>
+            <span>Yêu cầu đặt trước đang chờ</span>
         </div>
 
     </div>
@@ -97,18 +87,20 @@
 </div>
 
 <!-- KIỂM TRA DANH SÁCH RỖNG -->
-@if (!filteredBooks.Any())
+@if (!Model.Any())
 {
-    <p class="text-muted">
-        Không tìm thấy sách phù hợp.
-    </p>
+    <div class="bn-panel">
+        <p class="text-muted mb-0">
+            Không tìm thấy sách phù hợp.
+        </p>
+    </div>
 }
 else
 {
-    <!-- BOOK GRID -->
+    <!-- DANH SÁCH BOOK CARD -->
     <div class="bn-grid">
 
-        @foreach (var b in filteredBooks)
+        @foreach (var b in Model)
         {
             <div class="bn-card">
 
@@ -141,11 +133,11 @@ else
                         Giá: @b.Price.ToString("N0") VNĐ
                     </p>
 
-                    <!-- TRẠNG THÁI SỐ LƯỢNG -->
+                    <!-- TRẠNG THÁI SÁCH -->
                     @if (b.StockQuantity > 0)
                     {
                         <span class="bn-badge-ok">
-                            Còn @b.StockQuantity bản trong kho
+                            Còn @b.StockQuantity bản
                         </span>
                     }
                     else

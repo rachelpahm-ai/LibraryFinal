@@ -12,70 +12,94 @@ namespace Library.Controllers
     {
         // GET: Library
         // Action Index xử lý URL /Library/Index
-        public ActionResult Index()
+
+        // GET: Library
+        // Trang chủ thư viện - lấy dữ liệu từ SQL Server
+        public ActionResult Index(string search)
         {
-            // Tạo danh sách sách mẫu
-            var books = new List<BookCardViewModel>
+            using (var db = new LibraryManagementEntities())
             {
-                // Sách mẫu 1
-                new BookCardViewModel
-                {
-                    BookID = 1,
-                    Title = "Clean Code",
-                    CategoryName = "Lập trình",
-                    AuthorName = "Robert C. Martin",
-                    Price = 450000,
-                    StockQuantity = 10,
-                    ImageUrl = "book-01.jpg",
-                    Description = "Handbook of Agile Software Craftsmanship",
-                    IsActive = true
-                },
+                // 1. THỐNG KÊ TRANG CHỦ
 
-                // Sách mẫu 2
-                new BookCardViewModel
-                {
-                    BookID = 2,
-                    Title = "Cho Tôi Xin Một Vé Đi Tuổi Thơ",
-                    CategoryName = "Văn học",
-                    AuthorName = "Nguyễn Nhật Ánh",
-                    Price = 85000,
-                    StockQuantity = 15,
-                    ImageUrl = "book-02.jpg",
-                    Description = "Tác phẩm nổi tiếng viết về tuổi thơ",
-                    IsActive = true
-                },
+                // Tổng số đầu sách trong database
+                ViewBag.TotalBooks = db.Books.Count();
 
-                // Sách mẫu 3
-                new BookCardViewModel
-                {
-                    BookID = 3,
-                    Title = "Đắc Nhân Tâm",
-                    CategoryName = "Kỹ năng sống",
-                    AuthorName = "Dale Carnegie",
-                    Price = 98000,
-                    StockQuantity = 20,
-                    ImageUrl = "book-03.jpg",
-                    Description = "Sách kỹ năng sống và nghệ thuật thu phục lòng người",
-                    IsActive = true
-                },
+                // Tổng số bản sách đang có trong kho
+                ViewBag.Available = db.Books
+                    .Where(b => b.IsActive == true)
+                    .Sum(b => (int?)b.StockQuantity) ?? 0;
 
-                // Sách mẫu 4
-                new BookCardViewModel
+                // Tổng số thể loại
+                ViewBag.TotalCategories = db.Categories.Count();
+
+                // Tổng thành viên đang hoạt động
+                ViewBag.TotalMembers = db.Members
+                    .Count(m => m.IsLocked == false);
+
+                // Số phiếu chưa có ngày trả
+                // Tạm sử dụng ReturnDate vì bảng Loan chưa có Status
+                ViewBag.TotalLoans = db.Loans
+                    .Count(l => l.ReturnDate == null);
+
+                // Số yêu cầu đặt trước đang chờ xử lý
+                ViewBag.PendingReservations = db.Reservations
+                    .Count(r => r.Status == "Chờ xử lý");
+
+
+                // 2. TRUY VẤN DANH SÁCH SÁCH
+
+                var query =
+                    from b in db.Books.AsNoTracking()
+                    join c in db.Categories
+                        on b.CategoryID equals c.CategoryID
+                    join a in db.Authors
+                        on b.AuthorID equals a.AuthorID
+                    where b.IsActive == true
+                    select new { b, c, a };
+
+
+                // 3. TÌM KIẾM SÁCH
+
+                if (!string.IsNullOrWhiteSpace(search))
                 {
-                    BookID = 4,
-                    Title = "Lược Sử Thời Gian",
-                    CategoryName = "Khoa học",
-                    AuthorName = "Stephen Hawking",
-                    Price = 150000,
-                    StockQuantity = 8,
-                    ImageUrl = "book-04.jpg",
-                    Description = "Cuốn sách kinh điển về vũ trụ học",
-                    IsActive = true
+                    string keyword = search.Trim();
+
+                    query = query.Where(x =>
+                        x.b.Title.Contains(keyword) ||
+                        x.a.AuthorName.Contains(keyword) ||
+                        x.c.CategoryName.Contains(keyword)
+                    );
                 }
-            };
 
-            // Truyền danh sách books sang View Index
-            return View(books);
+
+                // 4. CHUYỂN DỮ LIỆU SANG VIEWMODEL
+
+                var books = query
+                    .OrderByDescending(x => x.b.BookID)
+                    .Select(x => new BookCardViewModel
+                    {
+                        BookID = x.b.BookID,
+                        Title = x.b.Title,
+                        CategoryName = x.c.CategoryName,
+                        AuthorName = x.a.AuthorName,
+                        Price = x.b.Price,
+                        StockQuantity = x.b.StockQuantity,
+                        ImageUrl = x.b.ImageUrl,
+                        Description = x.b.Description,
+                        IsActive = x.b.IsActive
+                    })
+                    .ToList();
+
+
+                // 5. GIỮ LẠI TỪ KHÓA TÌM KIẾM
+
+                ViewBag.Search = search;
+
+
+                // 6. TRUYỀN DANH SÁCH SÁCH SANG VIEW
+
+                return View(books);
+            }
         }
 
 
