@@ -138,6 +138,8 @@
     <Compile Include="Controllers\LibraryController.cs" />
     <Compile Include="Controllers\LoansController.cs" />
     <Compile Include="Controllers\MembersController.cs" />
+	  <Compile Include="Controllers\ReservationsController.cs" />
+	  <Compile Include="Controllers\UsersController.cs" />
     <Content Include="Views\Members\Index.cshtml" />
     <Content Include="Views\Members\_MemberForm.cshtml" />
     <Content Include="Views\Members\Details.cshtml" />
