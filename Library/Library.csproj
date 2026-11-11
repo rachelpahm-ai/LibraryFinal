@@ -132,6 +132,8 @@
     <Compile Include="Controllers\AuthorMetadata.cs" />
     <Compile Include="Controllers\AuthorsController.cs" />
     <Compile Include="Controllers\CategoriesController.cs" />
+    <Compile Include="Controllers\BooksController.cs" />
+    
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\LibraryController.cs" />
     <Compile Include="Controllers\LoansController.cs" />
@@ -302,6 +304,11 @@
     <Content Include="Views\Loans\Details.cshtml" />
     <Content Include="Views\Loans\Cancel.cshtml" />
     <Content Include="Views\Loans\_ViewStart.cshtml" />
+     <Content Include="Views\Books\Create.cshtml" />
+    <Content Include="Views\Books\Delete.cshtml" />
+    <Content Include="Views\Books\Details.cshtml" />
+    <Content Include="Views\Books\Edit.cshtml" />
+    <Content Include="Views\Books\Index.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

@@ -1,0 +1,136 @@
+﻿@model Library.Models.Book
+
+@{
+    ViewBag.Title = "Thêm sách mới";
+    Layout = "~/Views/Shared/LibraryLayout.cshtml";
+}
+
+<!-- TIÊU ĐỀ -->
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+    <div>
+        <h1 class="h3 fw-bold mb-1">Thêm sách mới</h1>
+        <p class="text-muted mb-0">Nhập thông tin để bổ sung sách vào kho thư viện.</p>
+    </div>
+    <a href="@Url.Action("Index", "Books")" class="btn btn-outline-secondary">
+        Quay về danh sách
+    </a>
+</div>
+
+<!-- BIỂU MẪU THÊM SÁCH -->
+<div class="bn-panel">
+    @using (Html.BeginForm("Create", "Books", FormMethod.Post, new { enctype = "multipart/form-data" }))
+    {
+        @Html.AntiForgeryToken()
+        @Html.ValidationSummary(true, "", new { @class = "text-danger mb-3" })
+
+        <div class="row g-3">
+            <!-- TÊN SÁCH -->
+            <div class="col-12">
+                @Html.LabelFor(model => model.Title, "Tên sách", new { @class = "form-label fw-semibold" })
+                @Html.EditorFor(model => model.Title,
+                         new { htmlAttributes = new { @class = "form-control", placeholder = "Nhập tên sách" } })
+                @Html.ValidationMessageFor(model => model.Title, "", new { @class = "text-danger" })
+            </div>
+
+            <!-- THỂ LOẠI -->
+            <div class="col-md-6">
+                @Html.LabelFor(model => model.CategoryID, "Thể loại", new { @class = "form-label fw-semibold" })
+                @Html.DropDownList("CategoryID", null, "-- Chọn thể loại --", new { @class = "form-select" })
+                @Html.ValidationMessageFor(model => model.CategoryID, "", new { @class = "text-danger" })
+            </div>
+
+            <!-- TÁC GIẢ -->
+            <div class="col-md-6">
+                @Html.LabelFor(model => model.AuthorID, "Tác giả", new { @class = "form-label fw-semibold" })
+                @Html.DropDownList("AuthorID", null, "-- Chọn tác giả --", new { @class = "form-select" })
+                @Html.ValidationMessageFor(model => model.AuthorID, "", new { @class = "text-danger" })
+            </div>
+
+            <!-- GIÁ SÁCH -->
+            <div class="col-md-6">
+                @Html.LabelFor(model => model.Price, "Giá sách (VNĐ)", new { @class = "form-label fw-semibold" })
+                @Html.EditorFor(model => model.Price,
+                         new { htmlAttributes = new { @class = "form-control", placeholder = "Ví dụ: 120000" } })
+                @Html.ValidationMessageFor(model => model.Price, "", new { @class = "text-danger" })
+            </div>
+
+            <!-- SỐ LƯỢNG -->
+            <div class="col-md-6">
+                @Html.LabelFor(model => model.StockQuantity, "Số lượng trong kho", new { @class = "form-label fw-semibold" })
+                @Html.EditorFor(model => model.StockQuantity,
+                         new { htmlAttributes = new { @class = "form-control", placeholder = "Ví dụ: 10" } })
+                @Html.ValidationMessageFor(model => model.StockQuantity, "", new { @class = "text-danger" })
+            </div>
+
+            <!-- CHỌN ẢNH BÌA TỪ MÁY -->
+            <div class="col-12">
+                <label for="ImageFile" class="form-label fw-semibold">Ảnh bìa sách</label>
+                <input type="file" id="ImageFile" name="ImageFile"
+                       class="form-control" accept=".jpg,.jpeg,.png,image/jpeg,image/png" />
+                @Html.ValidationMessage("ImageFile", "", new { @class = "text-danger" })
+                <div class="form-text">Chọn ảnh JPG, JPEG hoặc PNG, tối đa 2 MB. Có thể bỏ trống.</div>
+                <img id="imagePreview" alt="Xem trước ảnh bìa mới"
+                     class="img-thumbnail mt-3" style="max-height:220px;max-width:160px;display:none;object-fit:contain;" />
+            </div>
+
+            <!-- MÔ TẢ -->
+            <div class="col-12">
+                @Html.LabelFor(model => model.Description, "Mô tả sách", new { @class = "form-label fw-semibold" })
+                @Html.TextAreaFor(model => model.Description,
+                         new { @class = "form-control", rows = "4", placeholder = "Nhập mô tả ngắn về nội dung sách" })
+                @Html.ValidationMessageFor(model => model.Description, "", new { @class = "text-danger" })
+            </div>
+
+            <!-- TRẠNG THÁI -->
+            <div class="col-12">
+                @Html.LabelFor(model => model.IsActive, "Trạng thái hiển thị", new { @class = "form-label fw-semibold" })
+                @Html.DropDownListFor(model => model.IsActive,
+                         new[] {
+                        new SelectListItem { Text = "Đang hiển thị", Value = "true" },
+                        new SelectListItem { Text = "Tạm ẩn", Value = "false" }
+                         },
+                         new { @class = "form-select" })
+                @Html.ValidationMessageFor(model => model.IsActive, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+        <hr class="my-4" />
+
+        <!-- NÚT CHỨC NĂNG -->
+        <div class="d-flex flex-wrap gap-2">
+            <button type="submit" class="btn btn-primary">Lưu sách</button>
+            <a href="@Url.Action("Index", "Books")" class="btn btn-outline-secondary">Hủy</a>
+        </div>
+    }
+</div>
+
+@section scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+    <script>(function () {
+            var input = document.getElementById('ImageFile');
+            var preview = document.getElementById('imagePreview');
+            var originalSrc = preview.getAttribute('src') || '';
+            function restore() {
+                if (originalSrc) preview.src = originalSrc;
+                else preview.removeAttribute('src');
+                preview.style.display = originalSrc ? 'block' : 'none';
+            }
+            input.addEventListener('change', function () {
+                var file = input.files && input.files[0];
+                if (!file) { restore(); return; }
+                var ext = (file.name.split('.').pop() || '').toLowerCase();
+                if (['jpg', 'jpeg', 'png'].indexOf(ext) === -1 || file.size > 2 * 1024 * 1024) {
+                    alert('Chỉ chấp nhận ảnh JPG/JPEG/PNG tối đa 2 MB.');
+                    input.value = '';
+                    restore();
+                    return;
+                }
+                var reader = new FileReader();
+                reader.onload = function (e) {
+                    preview.src = e.target.result;
+                    preview.style.display = 'block';
+                };
+                reader.readAsDataURL(file);
+            });
+        })();</script>
+}

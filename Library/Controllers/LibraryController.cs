@@ -110,7 +110,6 @@ namespace Library.Controllers
             return View();
         }
 
-
         // GET: Library/TestDatabase
         // Kiểm tra kết nối Entity Framework với SQL Server
         public ActionResult TestDatabase()
@@ -130,7 +129,5 @@ namespace Library.Controllers
             }
             //demo
         }
-
-
     }
 }

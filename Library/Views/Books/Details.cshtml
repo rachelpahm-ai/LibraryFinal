@@ -1,0 +1,90 @@
+﻿@model Library.Models.Book
+
+@{
+    ViewBag.Title = "Chi tiết sách";
+    Layout = "~/Views/Shared/LibraryLayout.cshtml";
+}
+
+<!-- TIÊU ĐỀ -->
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+    <div>
+        <h1 class="h3 fw-bold mb-1">Chi tiết sách</h1>
+        <p class="text-muted mb-0">Xem thông tin sách trong thư viện.</p>
+    </div>
+    <a href="@Url.Action("Index", "Books")" class="btn btn-outline-secondary">Quay về danh sách</a>
+</div>
+
+<!-- THÔNG TIN SÁCH -->
+<div class="bn-panel">
+    <div class="row g-4">
+        <!-- ẢNH BÌA -->
+        <div class="col-md-4 col-lg-3">
+            <div class="bn-cover" style="max-width:260px; margin:0 auto;">
+                <span>@Model.Title</span>
+                @if (!string.IsNullOrWhiteSpace(Model.ImageUrl))
+                {
+                    <img src="@Url.Content("~/Content/images/" + Model.ImageUrl)"
+                         alt="Ảnh bìa sách @Model.Title"
+                         onerror="this.style.display='none'" />
+                }
+            </div>
+        </div>
+
+        <!-- NỘI DUNG -->
+        <div class="col-md-8 col-lg-9">
+            <div class="d-flex flex-wrap align-items-center gap-2 mb-3">
+                <h2 class="h4 fw-bold mb-0">@Model.Title</h2>
+                @if (Model.IsActive == true)
+                {
+                    <span class="bn-badge-ok">Đang hiển thị</span>
+                }
+                else if (Model.IsActive == false)
+                {
+                    <span class="bn-badge-out">Đã ẩn</span>
+                }
+                else
+                {
+                    <span class="text-muted small">Chưa xác định trạng thái</span>
+                }
+            </div>
+
+            <dl class="row mb-0">
+                <dt class="col-sm-4 mb-2">Mã sách</dt>
+                <dd class="col-sm-8 mb-2">@Model.BookID</dd>
+
+                <dt class="col-sm-4 mb-2">Thể loại</dt>
+                <dd class="col-sm-8 mb-2">@(Model.Category != null ? Model.Category.CategoryName : "Chưa có thông tin")</dd>
+
+                <dt class="col-sm-4 mb-2">Tác giả</dt>
+                <dd class="col-sm-8 mb-2">@(Model.Author != null ? Model.Author.AuthorName : "Chưa có thông tin")</dd>
+
+                <dt class="col-sm-4 mb-2">Giá sách</dt>
+                <dd class="col-sm-8 mb-2 fw-semibold">@Model.Price.ToString("N0") VNĐ</dd>
+
+                <dt class="col-sm-4 mb-2">Số lượng trong kho</dt>
+                <dd class="col-sm-8 mb-2">
+                    @if (Model.StockQuantity > 0)
+                    {
+                        <span class="bn-badge-ok">Còn @Model.StockQuantity bản</span>
+                    }
+                    else
+                    {
+                        <span class="bn-badge-out">Hết sách</span>
+                    }
+                </dd>
+
+                <dt class="col-sm-4 mb-2">Mô tả sách</dt>
+                <dd class="col-sm-8 mb-2" style="white-space:pre-wrap;">@(string.IsNullOrWhiteSpace(Model.Description) ? "Chưa có mô tả" : Model.Description)</dd>
+            </dl>
+        </div>
+    </div>
+
+    <hr class="my-4" />
+
+    <!-- ĐIỀU HƯỚNG -->
+    <div class="d-flex flex-wrap gap-2">
+        <a href="@Url.Action("Edit", "Books", new { id = Model.BookID })" class="btn btn-primary">Chỉnh sửa sách</a>
+        <a href="@Url.Action("Delete", "Books", new { id = Model.BookID })" class="btn btn-outline-danger">Xóa sách</a>
+        <a href="@Url.Action("Index", "Books")" class="btn btn-outline-secondary">Quay về danh sách</a>
+    </div>
+</div>
