@@ -9,6 +9,21 @@
 <div class="panel panel-default">
     <div class="panel-heading">
         Thông tin phiếu mượn
+
+        @if (TempData["Success"] != null)
+        {
+            <div class="alert alert-success">
+                @TempData["Success"]
+            </div>
+        }
+
+        @if (TempData["Error"] != null)
+        {
+            <div class="alert alert-danger">
+                @TempData["Error"]
+            </div>
+        }
+
     </div>
 
     <div class="panel-body">
@@ -28,6 +43,54 @@
             <strong>Hạn trả:</strong>
             @Model.DueDate.ToString("dd/MM/yyyy")
         </p>
+
+
+        @if (Model.ReturnDate.HasValue)
+        {
+            <p>
+                <strong>Ngày trả thực tế:</strong>
+                @Model.ReturnDate.Value.ToString("dd/MM/yyyy")
+            </p>
+        }
+        else
+        {
+            <p>
+                <strong>Trạng thái:</strong>
+                <span class="badge bg-warning text-dark">
+                    Đang mượn
+                </span>
+            </p>
+        }
+
+
+        @if (Model.ReturnDate.HasValue)
+        {
+            if (Model.TotalFine > 0)
+            {
+                <div class="alert alert-warning mt-3">
+                    <strong>Trả sách quá hạn!</strong>
+                    <p>
+                        Tổng tiền phạt:
+                        <strong>
+                            @String.Format("{0:N0}", Model.TotalFine) VNĐ
+                        </strong>
+                    </p>
+                </div>
+            }
+            else
+            {
+                <div class="alert alert-success mt-3">
+                    Trả sách đúng hạn. Không phát sinh tiền phạt.
+                </div>
+            }
+        }
+        else if (Model.DueDate.Date < DateTime.Today)
+        {
+            <div class="alert alert-danger mt-3">
+                Phiếu mượn đã quá hạn và chưa được trả.
+            </div>
+        }
+
     </div>
 </div>
 
@@ -64,18 +127,35 @@
     </tbody>
 </table>
 
-<p>
+
+<div class="mt-3">
     @Html.ActionLink("Quay lại danh sách", "Index", "Loans",
         null, new { @class = "btn btn-default" })
 
     @if (Model.ReturnDate == null)
     {
-        @Html.ActionLink("Trả sách", "Return", "Loans",
+        using (Html.BeginForm("ReturnConfirmed", "Loans",
             new { id = Model.LoanID },
-            new { @class = "btn btn-success" })
+            FormMethod.Post,
+            new
+            {
+                style = "display:inline-block;",
+                onsubmit = "return confirm('Xác nhận trả toàn bộ sách trong phiếu này?');"
+            }))
+        {
+            @Html.AntiForgeryToken()
+
+            <button type="submit" class="btn btn-success">
+                Trả sách
+            </button>
+        }
 
         @Html.ActionLink("Hủy phiếu", "Cancel", "Loans",
             new { id = Model.LoanID },
             new { @class = "btn btn-danger" })
     }
-</p>
+    else
+    {
+        <span class="badge bg-success">Đã trả sách</span>
+    }
+</div>

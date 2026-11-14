@@ -237,34 +237,97 @@ namespace Library.Controllers
 
             return View(loan);
         }
-    
-        
+
+
         // GET: Loans/Return/5
+
+        // GET: Loans/Return/5
+        // GET không được thay đổi dữ liệu.
         public ActionResult Return(int id)
         {
-            var loan = db.Loans
-                .Include(l => l.LoanDetails)
-                .FirstOrDefault(l => l.LoanID == id);
+            return RedirectToAction("Details", new { id = id });
+        }
 
-            if (loan == null)
+        // POST: Loans/ReturnConfirmed/5
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult ReturnConfirmed(int id)
+        {
+            try
             {
-                return HttpNotFound();
-            }
+                using (var transaction = db.Database.BeginTransaction())
+                {
+                    var loan = db.Loans
+                        .Include(l => l.LoanDetails)
+                        .FirstOrDefault(l => l.LoanID == id);
 
-            if (loan.ReturnDate != null)
+                    if (loan == null)
+                    {
+                        return HttpNotFound();
+                    }
+
+                    // Không cho trả trùng
+                    if (loan.ReturnDate != null)
+                    {
+                        TempData["Error"] = "Phiếu này đã được trả.";
+                        return RedirectToAction("Details",
+                            new { id = id });
+                    }
+
+                    DateTime returnDate = DateTime.Today;
+
+                    int overdueDays = Math.Max(
+                        0,
+                        (returnDate - loan.DueDate.Date).Days
+                    );
+
+                    decimal totalFine = 0;
+
+                    foreach (var detail in loan.LoanDetails)
+                    {
+                        var book = db.Books
+                            .FirstOrDefault(b => b.BookID == detail.BookID);
+
+                        if (book == null)
+                        {
+                            throw new InvalidOperationException(
+                                "Không tìm thấy sách mã " + detail.BookID);
+                        }
+
+                        // Hoàn lại số lượng đã mượn
+                        book.StockQuantity += detail.Quantity;
+
+                        // Tiền phạt: 5.000 VNĐ/ngày/quyển
+                        decimal fine =
+                            overdueDays * 5000m * detail.Quantity;
+
+                        detail.FineAmount = fine;
+                        totalFine += fine;
+                    }
+
+                    // Cập nhật phiếu mượn
+                    loan.ReturnDate = returnDate;
+                    loan.TotalFine = totalFine;
+
+                    // Lưu cùng một giao dịch
+                    db.SaveChanges();
+                    transaction.Commit();
+                }
+
+                TempData["Success"] =
+                    "Trả sách thành công. Đã cập nhật tồn kho.";
+
+                return RedirectToAction("Details",
+                    new { id = id });
+            }
+            catch (Exception)
             {
-                TempData["Error"] = "Phiếu này đã được trả.";
-                return RedirectToAction("Index");
+                TempData["Error"] =
+                    "Không thể trả sách. Dữ liệu chưa được cập nhật.";
+
+                return RedirectToAction("Details",
+                    new { id = id });
             }
-
-            loan.ReturnDate = DateTime.Today;
-            loan.TotalFine = 0;
-
-            db.SaveChanges();
-
-            TempData["Success"] = "Trả sách thành công.";
-
-            return RedirectToAction("Details", new { id = loan.LoanID });
         }
 
         // GET: Loans/Cancel/5
@@ -294,28 +357,66 @@ namespace Library.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult CancelConfirmed(int id)
         {
-            var loan = db.Loans
-                .Include(l => l.LoanDetails)
-                .FirstOrDefault(l => l.LoanID == id);
-
-            if (loan == null)
+            try
             {
-                return HttpNotFound();
-            }
+                using (var transaction = db.Database.BeginTransaction())
+                {
+                    var loan = db.Loans
+                        .Include(l => l.LoanDetails)
+                        .FirstOrDefault(l => l.LoanID == id);
 
-            if (loan.ReturnDate != null)
-            {
-                TempData["Error"] = "Không thể hủy phiếu đã trả.";
+                    // Kiểm tra phiếu tồn tại
+                    if (loan == null)
+                    {
+                        return HttpNotFound();
+                    }
+
+                    // Không được hủy phiếu đã trả
+                    if (loan.ReturnDate != null)
+                    {
+                        TempData["Error"] = "Không thể hủy phiếu đã trả.";
+                        return RedirectToAction("Index");
+                    }
+
+                    // Hoàn lại tồn kho cho từng sách trong phiếu
+                    foreach (var detail in loan.LoanDetails)
+                    {
+                        var book = db.Books
+                            .FirstOrDefault(b => b.BookID == detail.BookID);
+
+                        if (book == null)
+                        {
+                            throw new InvalidOperationException(
+                                "Không tìm thấy sách mã " + detail.BookID);
+                        }
+
+                        book.StockQuantity += detail.Quantity;
+                    }
+
+                    // Xóa chi tiết phiếu mượn
+                    db.LoanDetails.RemoveRange(
+                        loan.LoanDetails.ToList());
+
+                    // Xóa phiếu mượn
+                    db.Loans.Remove(loan);
+
+                    // Lưu toàn bộ thay đổi
+                    db.SaveChanges();
+                    transaction.Commit();
+                }
+
+                TempData["Success"] =
+                    "Hủy phiếu thành công. Đã hoàn lại số lượng sách vào kho.";
+
                 return RedirectToAction("Index");
             }
+            catch (Exception)
+            {
+                TempData["Error"] =
+                    "Không thể hủy phiếu. Dữ liệu chưa được cập nhật.";
 
-            db.LoanDetails.RemoveRange(loan.LoanDetails);
-            db.Loans.Remove(loan);
-            db.SaveChanges();
-
-            TempData["Success"] = "Hủy phiếu mượn thành công.";
-
-            return RedirectToAction("Index");
+                return RedirectToAction("Index");
+            }
         }
 
 
