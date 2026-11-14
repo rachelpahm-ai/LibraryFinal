@@ -176,17 +176,29 @@ namespace Library.Controllers
                         ReturnDate = null,
                         TotalFine = 0
                     };
-
-                    // Thêm các sách vào chi tiết phiếu
+            
+                    // Thêm sách vào chi tiết phiếu và giảm tồn kho
                     foreach (var book in books)
                     {
+                        // Kiểm tra sách còn trong kho
+                        if (book.StockQuantity < 1)
+                        {
+                            throw new InvalidOperationException(
+                                "Sách đã hết hàng: " + book.Title);
+                        }
+
+                        // Thêm chi tiết phiếu mượn
                         loan.LoanDetails.Add(new LoanDetail
                         {
                             BookID = book.BookID,
                             Quantity = 1,
                             FineAmount = 0
                         });
+
+                        // Giảm số lượng tồn kho
+                        book.StockQuantity -= 1;
                     }
+
 
                     // Lưu dữ liệu
                     db.Loans.Add(loan);
