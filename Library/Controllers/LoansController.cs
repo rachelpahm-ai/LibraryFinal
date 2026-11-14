@@ -155,21 +155,22 @@ namespace Library.Controllers
             }
 
 
-            // BUSINESS LOGIC: CHẶN ĐỘC GIẢ CÓ SÁCH QUÁ HẠN
+
+            // BUSINESS LOGIC: CHẶN MƯỢN KHI CÓ SÁCH QUÁ HẠN
             if (member != null)
             {
                 bool hasOverdueBooks = db.Loans.Any(l =>
                     l.MemberID == member.MemberID &&
                     l.ReturnDate == null &&
-                    l.DueDate < DateTime.Today &&
-                    l.LoanDetails.Any());
+                    l.DueDate < DateTime.Today);
 
                 if (hasOverdueBooks)
                 {
                     ModelState.AddModelError(
-                        "MemberID",
-                        "Độc giả đang có sách quá hạn chưa trả. " +
-                        "Vui lòng hoàn tất trả sách trước khi mượn tiếp.");
+                        "",
+                        "Không thể mượn sách! Độc giả đang có " +
+                        "sách quá hạn chưa trả. Vui lòng trả sách " +
+                        "trước khi tạo phiếu mượn mới.");
                 }
             }
 
