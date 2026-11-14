@@ -6,6 +6,7 @@ using System.Linq;
 using System.Net;
 using System.Web;
 using System.Web.Mvc;
+using Library.Filters;
 
 namespace Library.Controllers
 {
@@ -61,6 +62,7 @@ namespace Library.Controllers
         }
 
         // 3. CREATE (GET)
+        [RoleAuthorize("Admin", "Librarian")]
         public ActionResult Create()
         {
             ViewBag.Title = "Thêm mới Thể loại";
@@ -70,6 +72,7 @@ namespace Library.Controllers
         // CREATE (POST): Kiểm tra trùng tên (bỏ khoảng trắng, không phân biệt hoa thường)
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [RoleAuthorize("Admin", "Librarian")]
         public ActionResult Create([Bind(Include = "CategoryID,CategoryName")] Category category)
         {
             ViewBag.Title = "Thêm mới Thể loại";
@@ -98,6 +101,7 @@ namespace Library.Controllers
         }
 
         // 4. EDIT (GET)
+        [RoleAuthorize("Admin", "Librarian")]
         public ActionResult Edit(int? id)
         {
             ViewBag.Title = "Chỉnh sửa Thể loại";
@@ -110,6 +114,7 @@ namespace Library.Controllers
         // EDIT (POST): Loại trừ chính bản ghi đang sửa khi check trùng tên
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [RoleAuthorize("Admin", "Librarian")]
         public ActionResult Edit([Bind(Include = "CategoryID,CategoryName")] Category category)
         {
             ViewBag.Title = "Chỉnh sửa Thể loại";
@@ -138,6 +143,7 @@ namespace Library.Controllers
         }
 
         // 5. DELETE (GET)
+        [RoleAuthorize("Admin", "Librarian")]
         public ActionResult Delete(int? id)
         {
             ViewBag.Title = "Xóa Thể loại";
@@ -150,6 +156,7 @@ namespace Library.Controllers
         // DELETE (POST): Chặn xóa khi còn sách + Bắt lỗi khóa ngoại CSDL
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
+        [RoleAuthorize("Admin", "Librarian")]
         public ActionResult DeleteConfirmed(int id)
         {
             try

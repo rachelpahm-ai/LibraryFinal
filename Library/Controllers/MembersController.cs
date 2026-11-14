@@ -7,9 +7,11 @@ using System.Net;
 using System.Web;
 using System.Web.Mvc;
 using Library.Models;
+using Library.Filters;
 
 namespace Library.Controllers
 {
+    [RoleAuthorize("Admin", "Librarian")]
     public class MembersController : Controller
     {
         private LibraryManagementEntities db = new LibraryManagementEntities();

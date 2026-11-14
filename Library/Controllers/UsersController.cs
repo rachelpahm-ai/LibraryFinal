@@ -9,9 +9,11 @@ using System.Net;
 using System.Web;
 using System.Web.Mvc;
 using Library.Models;
+using Library.Filters;
 
 namespace Library.Controllers
 {
+    [RoleAuthorize("Admin")]
     public class UsersController : Controller
     {
         private LibraryManagementEntities db = new LibraryManagementEntities();

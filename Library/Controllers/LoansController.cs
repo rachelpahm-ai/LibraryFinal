@@ -3,12 +3,14 @@ using System.Linq;
 using System.Data.Entity;
 using System.Web.Mvc;
 using Library.Models;
+using Library.Filters;
 
 namespace Library.Controllers
 {
+    [RoleAuthorize("Admin", "Librarian")]
     public class LoansController : Controller
     {
-       //kết nối database
+        //kết nối database
         private LibraryManagementEntities db = new LibraryManagementEntities();
 
         

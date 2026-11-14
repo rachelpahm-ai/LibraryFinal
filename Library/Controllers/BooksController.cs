@@ -8,6 +8,7 @@ using System.Web;
 using System.Web.Mvc;
 using Library.Models;
 using System.IO;
+using Library.Filters;
 
 namespace Library.Controllers
 {
@@ -73,6 +74,8 @@ namespace Library.Controllers
         }
 
         // GET: Books/Create
+        // GET: Books/Create
+        [RoleAuthorize("Admin", "Librarian")]
         public ActionResult Create()
         {
             ViewBag.AuthorID = new SelectList(db.Authors, "AuthorID", "AuthorName");
@@ -85,6 +88,7 @@ namespace Library.Controllers
         // more details see https://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [RoleAuthorize("Admin", "Librarian")]
         public ActionResult Create(
       [Bind(Include = "Title,CategoryID,AuthorID,Price,StockQuantity,Description,IsActive")] Book book,
       HttpPostedFileBase ImageFile)
@@ -129,6 +133,7 @@ namespace Library.Controllers
 
 
         // GET: Books/Edit/5
+        [RoleAuthorize("Admin", "Librarian")]
         public ActionResult Edit(int? id)
         {
             if (id == null)
@@ -150,6 +155,7 @@ namespace Library.Controllers
         // more details see https://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [RoleAuthorize("Admin", "Librarian")]
         public ActionResult Edit(
     [Bind(Include = "BookID,Title,CategoryID,AuthorID,Price,StockQuantity,Description,IsActive")] Book book,
     HttpPostedFileBase ImageFile)
@@ -194,6 +200,7 @@ namespace Library.Controllers
 
 
         // GET: Books/Delete/5
+        [RoleAuthorize("Admin", "Librarian")]
         public ActionResult Delete(int? id)
         {
             if (id == null)
@@ -211,6 +218,7 @@ namespace Library.Controllers
         // POST: Books/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
+        [RoleAuthorize("Admin", "Librarian")]
         public ActionResult DeleteConfirmed(int id)
         {
             Book book = db.Books.Find(id);

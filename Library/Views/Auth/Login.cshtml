@@ -1,0 +1,161 @@
+﻿
+@model Library.Models.ViewModels.LoginViewModel
+@{
+    Layout = "~/Views/Shared/LibraryLayout.cshtml";
+}
+
+
+
+@{
+    ViewBag.Title = "Đăng nhập - BookNest";
+}
+
+<style>
+    .bn-login-page {
+        min-height: 70vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 48px 16px;
+        background: #f5f7fc;
+    }
+
+    .bn-login-card {
+        width: 100%;
+        max-width: 420px;
+        background: #ffffff;
+        padding: 36px;
+        border-radius: 16px;
+        box-shadow: 0 8px 32px rgba(15, 23, 42, 0.08);
+    }
+
+    .bn-login-title {
+        text-align: center;
+        font-size: 28px;
+        font-weight: 700;
+        color: #152447;
+        margin-bottom: 8px;
+    }
+
+    .bn-login-subtitle {
+        text-align: center;
+        color: #64748b;
+        margin-bottom: 28px;
+    }
+
+    .bn-form-group {
+        margin-bottom: 20px;
+    }
+
+    .bn-form-label {
+        display: block;
+        font-weight: 600;
+        color: #334155;
+        margin-bottom: 8px;
+    }
+
+    .bn-form-input {
+        width: 100%;
+        padding: 12px 14px;
+        border: 1px solid #cbd5e1;
+        border-radius: 8px;
+        font-size: 15px;
+        box-sizing: border-box;
+    }
+
+        .bn-form-input:focus {
+            border-color: #4f46e5;
+            outline: 2px solid rgba(79, 70, 229, 0.12);
+        }
+
+    .bn-login-button {
+        width: 100%;
+        padding: 13px;
+        background: #243b80;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-size: 16px;
+        font-weight: 600;
+        cursor: pointer;
+    }
+
+        .bn-login-button:hover {
+            background: #1b2e64;
+        }
+
+    .bn-login-error {
+        color: #dc2626;
+        font-size: 13px;
+        margin-top: 6px;
+        display: block;
+    }
+
+    .bn-login-card .validation-summary-errors {
+        color: #b91c1c;
+        background: #fef2f2;
+        padding: 12px;
+        border-radius: 8px;
+        margin-bottom: 18px;
+    }
+</style>
+
+<div class="bn-login-page">
+    <div class="bn-login-card">
+
+        <h1 class="bn-login-title">BookNest</h1>
+
+        <p class="bn-login-subtitle">
+            Đăng nhập vào hệ thống quản lý thư viện
+        </p>
+
+        @using (Html.BeginForm(
+            "Login",
+            "Auth",
+            new { returnUrl = ViewBag.ReturnUrl },
+            FormMethod.Post,
+            new { autocomplete = "on" }))
+        {
+            @Html.AntiForgeryToken()
+
+            @Html.ValidationSummary(true, "",
+                          new { @class = "bn-login-error" })
+
+            <div class="bn-form-group">
+                @Html.LabelFor(m => m.Username,
+                              new { @class = "bn-form-label" })
+
+                @Html.TextBoxFor(m => m.Username,
+                              new
+                              {
+                                  @class = "bn-form-input",
+                                  placeholder = "Nhập tên đăng nhập",
+                                  autocomplete = "username"
+                              })
+
+                @Html.ValidationMessageFor(m => m.Username, "",
+                              new { @class = "bn-login-error" })
+            </div>
+
+            <div class="bn-form-group">
+                @Html.LabelFor(m => m.Password,
+                              new { @class = "bn-form-label" })
+
+                @Html.PasswordFor(m => m.Password,
+                              new
+                              {
+                                  @class = "bn-form-input",
+                                  placeholder = "Nhập mật khẩu",
+                                  autocomplete = "current-password"
+                              })
+
+                @Html.ValidationMessageFor(m => m.Password, "",
+                              new { @class = "bn-login-error" })
+            </div>
+
+            <button type="submit" class="bn-login-button">
+                Đăng nhập
+            </button>
+        }
+    </div>
+</div>

@@ -6,6 +6,7 @@ using System.Linq;
 using System.Net;
 using System.Web;
 using System.Web.Mvc;
+using Library.Filters;
 
 namespace Library.Controllers
 {
@@ -69,6 +70,7 @@ namespace Library.Controllers
         }
 
         // CREATE (GET & POST)
+        [RoleAuthorize("Admin", "Librarian")]
         public ActionResult Create()
         {
             ViewBag.Title = "Thêm mới Tác giả";
@@ -77,6 +79,7 @@ namespace Library.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [RoleAuthorize("Admin", "Librarian")]
         public ActionResult Create([Bind(Include = "AuthorID,AuthorName,Bio")] Library.Models.Author author)
         {
             ViewBag.Title = "Thêm mới Tác giả";
@@ -103,6 +106,7 @@ namespace Library.Controllers
         }
 
         // EDIT (GET & POST)
+        [RoleAuthorize("Admin", "Librarian")]
         public ActionResult Edit(int? id)
         {
             ViewBag.Title = "Chỉnh sửa Tác giả";
@@ -116,6 +120,7 @@ namespace Library.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [RoleAuthorize("Admin", "Librarian")]
         public ActionResult Edit([Bind(Include = "AuthorID,AuthorName,Bio")] Library.Models.Author author)
         {
             ViewBag.Title = "Chỉnh sửa Tác giả";
@@ -142,6 +147,7 @@ namespace Library.Controllers
         }
 
         // DELETE (GET & POST)
+        [RoleAuthorize("Admin", "Librarian")]
         public ActionResult Delete(int? id)
         {
             ViewBag.Title = "Xóa Tác giả";
@@ -155,6 +161,7 @@ namespace Library.Controllers
 
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
+        [RoleAuthorize("Admin", "Librarian")]
         public ActionResult DeleteConfirmed(int id)
         {
             try
