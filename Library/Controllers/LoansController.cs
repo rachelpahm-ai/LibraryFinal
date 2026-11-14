@@ -129,6 +129,51 @@ namespace Library.Controllers
                     "MemberID", "Thành viên không hợp lệ hoặc thẻ đã hết hạn");
             }
 
+            // BUSINESS LOGIC: GIỚI HẠN TỐI ĐA 5 QUYỂN
+            if (member != null)
+            {
+                // Tổng số sách đang mượn và chưa trả
+                int currentlyBorrowed = db.Loans
+                    .Where(l => l.MemberID == member.MemberID
+                             && l.ReturnDate == null)
+                    .SelectMany(l => l.LoanDetails)
+                    .Select(d => (int?)d.Quantity)
+                    .Sum() ?? 0;
+                
+                // Mỗi sách được chọn tương ứng 1 quyển
+                int newBorrowCount = model.SelectedBookIDs == null
+                    ? 0
+                    : model.SelectedBookIDs.Count;
+
+                if (currentlyBorrowed + newBorrowCount > 5)
+                {
+                    ModelState.AddModelError(
+                        "SelectedBookIDs",
+                        "Độc giả đang mượn " + currentlyBorrowed +
+                        " quyển. Chỉ được mượn tối đa 5 quyển chưa trả.");
+                }
+            }
+
+
+            // BUSINESS LOGIC: CHẶN ĐỘC GIẢ CÓ SÁCH QUÁ HẠN
+            if (member != null)
+            {
+                bool hasOverdueBooks = db.Loans.Any(l =>
+                    l.MemberID == member.MemberID &&
+                    l.ReturnDate == null &&
+                    l.DueDate < DateTime.Today &&
+                    l.LoanDetails.Any());
+
+                if (hasOverdueBooks)
+                {
+                    ModelState.AddModelError(
+                        "MemberID",
+                        "Độc giả đang có sách quá hạn chưa trả. " +
+                        "Vui lòng hoàn tất trả sách trước khi mượn tiếp.");
+                }
+            }
+
+
             // Kiểm tra danh sách sách
             if (model.SelectedBookIDs == null ||
                 model.SelectedBookIDs.Count == 0)
