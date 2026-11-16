@@ -4,13 +4,6 @@ Thành viên nhóm
 
 1.Phạm Ngọc Phương Trinh (Nhóm trưởng)
 
-2.Trần Quốc Huy
-
-3.Nguyễn Thị Cẩm Tiên
-
-4.Mai Gia Bảo
-
-5.Trần Quốc Hưng
 
 ## Công nghệ sử dụng
 * **Frontend:** Semantic HTML5, CSS3
@@ -21,4 +14,7 @@ Quy tắc quản lý Code
 ## Quy tắc quản lý Code
 * TUYỆT ĐỐI không push code thẳng lên nhánh `main`.
 * Làm tính năng nào, tạo branch tên tính năng đó (vd: `feature-login`, `feature-book`).
-* Code xong báo nhóm trưởng để check và merge.
+
+** Cách chạy web
+* 1. Clone repo về máy ---> tìm thư mục Database ---> chạy script bằng Server Name: (localdb)\MSSQLLocalDB
+* 2. Mở file .sln ---> Ctrl + Shift + B ---> Ctrl + Shift + F5
