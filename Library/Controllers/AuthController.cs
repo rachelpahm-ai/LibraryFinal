@@ -21,7 +21,7 @@ namespace Library.Controllers
         {
             if (User.Identity.IsAuthenticated)
             {
-                return RedirectToAction("Index", "Home");
+                return RedirectToAction("Index", "Library");
             }
 
             ViewBag.ReturnUrl = returnUrl;
@@ -73,7 +73,7 @@ namespace Library.Controllers
                 return Redirect(returnUrl);
             }
 
-            return RedirectToAction("Index", "Home");
+            return RedirectToAction("Index", "Library");
         }
 
         // POST: Auth/Logout
@@ -84,7 +84,7 @@ namespace Library.Controllers
         {
             FormsAuthentication.SignOut();
 
-            return RedirectToAction("Index", "Home");
+            return RedirectToAction("Index", "Library");
         }
 
         protected override void Dispose(bool disposing)

@@ -4,6 +4,8 @@ namespace Library.Models.ViewModels
 {
     public class UserCreateViewModel
     {
+        [Display(Name = "Thành viên liên kết")]
+        public int? MemberID { get; set; }
         [Display(Name = "Tên đăng nhập")]
         [Required(ErrorMessage = "Vui lòng nhập tên đăng nhập.")]
         [MinLength(3,

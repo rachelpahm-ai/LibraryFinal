@@ -123,30 +123,42 @@ namespace Library.Controllers
         }
 
         // GET: Users/Create
-        // GET: Users/Create
+
         public ActionResult Create()
         {
-            ViewBag.Title = "Thêm tài khoản nhân viên";
+            ViewBag.Title = "Thêm tài khoản";
+
+            ViewBag.MemberOptions = new SelectList(
+                db.Members
+                    .Where(m => m.IsLocked == false &&
+                        !db.Accounts.Any(a => a.MemberID == m.MemberID))
+                    .OrderBy(m => m.FullName)
+                    .ToList(),
+                "MemberID",
+                "FullName"
+            );
 
             return View(new UserCreateViewModel
             {
                 Role = "Librarian"
             });
         }
-
         // POST: Users/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
         public ActionResult Create(UserCreateViewModel model)
         {
-            ViewBag.Title = "Thêm tài khoản nhân viên";
+            ViewBag.Title = "Thêm tài khoản";
 
+            // 1. Kiểm tra tên đăng nhập
             if (!string.IsNullOrWhiteSpace(model.Username))
             {
                 model.Username = model.Username.Trim();
+
                 string username = model.Username.ToLower();
 
-                if (db.Accounts.Any(a => a.Username.ToLower() == username))
+                if (db.Accounts.Any(a =>
+                    a.Username.ToLower() == username))
                 {
                     ModelState.AddModelError(
                         "Username",
@@ -154,13 +166,58 @@ namespace Library.Controllers
                 }
             }
 
+            // 2. Kiểm tra thành viên liên kết khi tạo Reader
+            if (model.Role == "Reader")
+            {
+                if (!model.MemberID.HasValue)
+                {
+                    ModelState.AddModelError(
+                        "MemberID",
+                        "Vui lòng chọn thành viên cho tài khoản Reader.");
+                }
+                else
+                {
+                    int memberId = model.MemberID.Value;
+
+                    bool memberValid = db.Members.Any(m =>
+                        m.MemberID == memberId &&
+                        m.IsLocked == false);
+
+                    if (!memberValid)
+                    {
+                        ModelState.AddModelError(
+                            "MemberID",
+                            "Thành viên không tồn tại hoặc đã bị khóa.");
+                    }
+                    else
+                    {
+                        bool alreadyLinked = db.Accounts.Any(a =>
+                            a.MemberID == memberId);
+
+                        if (alreadyLinked)
+                        {
+                            ModelState.AddModelError(
+                                "MemberID",
+                                "Thành viên này đã có tài khoản đăng nhập.");
+                        }
+                    }
+                }
+            }
+
+            // 3. Lưu tài khoản khi dữ liệu hợp lệ
             if (ModelState.IsValid)
             {
                 var account = new Account
                 {
                     Username = model.Username,
                     Role = model.Role,
-                    Password = PasswordHelper.HashPassword(model.Password)
+
+                    Password = PasswordHelper.HashPassword(
+                        model.Password),
+
+                    MemberID = model.Role == "Reader"
+                        ? model.MemberID
+                        : null
                 };
 
                 db.Accounts.Add(account);
@@ -169,7 +226,9 @@ namespace Library.Controllers
                 {
                     db.SaveChanges();
 
-                    TempData["Success"] = "Tạo tài khoản thành công.";
+                    TempData["Success"] =
+                        "Tạo tài khoản thành công.";
+
                     return RedirectToAction("Index");
                 }
                 catch (System.Data.Entity.Infrastructure.DbUpdateException ex)
@@ -187,18 +246,30 @@ namespace Library.Controllers
                     }
 
                     ModelState.AddModelError(
-                        "Username",
-                        "Tên đăng nhập này đã tồn tại.");
+                        "",
+                        "Tên đăng nhập hoặc thành viên liên kết " +
+                        "đã được sử dụng. Vui lòng kiểm tra lại.");
                 }
             }
 
-            // Không đưa mật khẩu đã nhập trở lại trang.
+            // 4. Nạp lại danh sách Member nếu có lỗi
+            ViewBag.MemberOptions = new SelectList(
+                db.Members
+                    .Where(m => m.IsLocked == false &&
+                        !db.Accounts.Any(a => a.MemberID == m.MemberID))
+                    .OrderBy(m => m.FullName)
+                    .ToList(),
+                "MemberID",
+                "FullName",
+                model.MemberID
+            );
+
+            // Không trả mật khẩu về View
             model.Password = null;
             model.ConfirmPassword = null;
 
             return View(model);
         }
-
         // GET: Users/Edit/5
         public ActionResult Edit(int? id)
         {

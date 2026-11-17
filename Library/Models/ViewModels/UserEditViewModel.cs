@@ -12,7 +12,7 @@ namespace Library.Models.ViewModels
         [Display(Name = "Vai trò")]
         [Required(ErrorMessage = "Vui lòng chọn vai trò.")]
         [RegularExpression(@"^(Admin|Librarian)$",
-            ErrorMessage = "Vai trò chỉ được là Admin hoặc Librarian.")]
+            ErrorMessage = "Vai trò chỉ được là Admin, Librarian hoặc Reader.")]
         public string Role { get; set; }
 
         [Display(Name = "Mật khẩu mới")]
@@ -21,10 +21,12 @@ namespace Library.Models.ViewModels
         [DataType(DataType.Password)]
         public string NewPassword { get; set; }
 
-        [Display(Name = " Xác nhận mật khẩu mới.")]
+        [Display(Name = " Xác nhận mật khẩu mới")]
         [DataType(DataType.Password)]
         [Compare("NewPassword",
             ErrorMessage = "Xác nhận mật khẩu không khớp.")]
         public string ConfirmPassword { get; set; }
+        [Display(Name = "Thành viên liên kết")]
+        public int? MemberID { get; set; }
     }
 }

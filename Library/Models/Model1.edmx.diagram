@@ -21,6 +21,7 @@
         <AssociationConnector Association="LibraryManagementModel.FK_LoanDetail_Loan" ManuallyRouted="false" />
         <AssociationConnector Association="LibraryManagementModel.FK_Reservation_Member" ManuallyRouted="false" />
         <AssociationConnector Association="LibraryManagementModel.Book_Author" ManuallyRouted="false" />
+        <AssociationConnector Association="LibraryManagementModel.FK_Account_Member" />
       </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>

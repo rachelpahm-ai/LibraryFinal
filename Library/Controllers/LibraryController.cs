@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 using System.Web.Mvc;
+using Library.Filters;
 
 namespace Library.Controllers
 {
@@ -43,7 +44,7 @@ namespace Library.Controllers
 
                 // Số yêu cầu đặt trước đang chờ xử lý
                 ViewBag.PendingReservations = db.Reservations
-                    .Count(r => r.Status == "Chờ xử lý");
+                    .Count(r => r.Status == "Chờ");
 
 
                 // 2. TRUY VẤN DANH SÁCH SÁCH
@@ -112,6 +113,7 @@ namespace Library.Controllers
 
         // GET: Library/TestDatabase
         // Kiểm tra kết nối Entity Framework với SQL Server
+        [RoleAuthorize("Admin")]
         public ActionResult TestDatabase()
         {
             using (var db = new LibraryManagementEntities())

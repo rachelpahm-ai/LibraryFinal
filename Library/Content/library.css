@@ -366,3 +366,44 @@ a {
         gap: 12px
     }
 }
+
+/* MENU QUẢN LÝ - ADMIN / LIBRARIAN */
+
+.bn-header--staff .bn-nav {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-areas:
+        "logo account"
+        "links links";
+    align-items: center;
+    gap: 12px 20px;
+    height: auto;
+    padding-top: 14px;
+    padding-bottom: 14px;
+}
+
+.bn-header--staff .bn-logo {
+    grid-area: logo;
+    justify-self: start;
+}
+
+.bn-header--staff .bn-links {
+    grid-area: links;
+    display: flex;
+    flex-wrap: wrap;
+    overflow: visible;
+    width: 100%;
+    min-width: 0;
+    max-width: none;
+    gap: 8px 16px;
+}
+
+    .bn-header--staff .bn-links a {
+        white-space: nowrap;
+    }
+
+.bn-header--staff .bn-account {
+    grid-area: account;
+    justify-self: end;
+    white-space: nowrap;
+}

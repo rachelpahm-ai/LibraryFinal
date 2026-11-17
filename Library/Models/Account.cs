@@ -18,5 +18,8 @@ namespace Library.Models
         public string Username { get; set; }
         public string Password { get; set; }
         public string Role { get; set; }
+        public Nullable<int> MemberID { get; set; }
+    
+        public virtual Member Member { get; set; }
     }
 }

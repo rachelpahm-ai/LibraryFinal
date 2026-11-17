@@ -13,6 +13,7 @@
           <Property Name="Username" Type="varchar" MaxLength="50" Nullable="false" />
           <Property Name="Password" Type="varchar" MaxLength="255" Nullable="false" />
           <Property Name="Role" Type="nvarchar" MaxLength="50" Nullable="false" />
+          <Property Name="MemberID" Type="int" />
         </EntityType>
         <EntityType Name="Author">
           <Key>
@@ -93,6 +94,18 @@
           <Property Name="ReserveDate" Type="datetime" />
           <Property Name="Status" Type="nvarchar" MaxLength="50" />
         </EntityType>
+        <Association Name="FK_Account_Member">
+          <End Role="Member" Type="Self.Member" Multiplicity="0..1" />
+          <End Role="Account" Type="Self.Account" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Member">
+              <PropertyRef Name="MemberID" />
+            </Principal>
+            <Dependent Role="Account">
+              <PropertyRef Name="MemberID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
         <Association Name="FK_Book_Author">
           <End Role="Author" Type="Self.Author" Multiplicity="1" />
           <End Role="Book" Type="Self.Book" Multiplicity="*" />
@@ -217,6 +230,10 @@
           <EntitySet Name="LoanDetail" EntityType="Self.LoanDetail" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="Member" EntityType="Self.Member" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="Reservation" EntityType="Self.Reservation" Schema="dbo" store:Type="Tables" />
+          <AssociationSet Name="FK_Account_Member" Association="Self.FK_Account_Member">
+            <End Role="Member" EntitySet="Member" />
+            <End Role="Account" EntitySet="Account" />
+          </AssociationSet>
           <AssociationSet Name="FK_Book_Author" Association="Self.FK_Book_Author">
             <End Role="Author" EntitySet="Author" />
             <End Role="Book" EntitySet="Book" />
@@ -266,6 +283,8 @@
           <Property Name="Username" Type="String" MaxLength="50" FixedLength="false" Unicode="false" Nullable="false" />
           <Property Name="Password" Type="String" MaxLength="255" FixedLength="false" Unicode="false" Nullable="false" />
           <Property Name="Role" Type="String" MaxLength="50" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="MemberID" Type="Int32" />
+          <NavigationProperty Name="Member" Relationship="LibraryManagementModel.FK_Account_Member" FromRole="Account" ToRole="Member" />
         </EntityType>
         <EntityType Name="Author">
           <Key>
@@ -341,6 +360,7 @@
           <Property Name="IsLocked" Type="Boolean" />
           <NavigationProperty Name="Loans" Relationship="Self.FK_Loan_Member" FromRole="Member" ToRole="Loan" />
           <NavigationProperty Name="Reservations" Relationship="Self.FK_Reservation_Member" FromRole="Member" ToRole="Reservation" />
+          <NavigationProperty Name="Accounts" Relationship="LibraryManagementModel.FK_Account_Member" FromRole="Member" ToRole="Account" />
         </EntityType>
         <EntityType Name="Reservation">
           <Key>
@@ -485,7 +505,23 @@
             <End Role="Author" EntitySet="Authors" />
             <End Role="Book" EntitySet="Books" />
           </AssociationSet>
+          <AssociationSet Name="FK_Account_Member" Association="LibraryManagementModel.FK_Account_Member">
+            <End Role="Member" EntitySet="Members" />
+            <End Role="Account" EntitySet="Accounts" />
+          </AssociationSet>
         </EntityContainer>
+        <Association Name="FK_Account_Member">
+          <End Type="LibraryManagementModel.Member" Role="Member" Multiplicity="0..1" />
+          <End Type="LibraryManagementModel.Account" Role="Account" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Member">
+              <PropertyRef Name="MemberID" />
+            </Principal>
+            <Dependent Role="Account">
+              <PropertyRef Name="MemberID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
       </Schema>
     </edmx:ConceptualModels>
     <!-- C-S mapping content -->
@@ -495,6 +531,7 @@
           <EntitySetMapping Name="Accounts">
             <EntityTypeMapping TypeName="LibraryManagementModel.Account">
               <MappingFragment StoreEntitySet="Account">
+                <ScalarProperty Name="MemberID" ColumnName="MemberID" />
                 <ScalarProperty Name="AccountID" ColumnName="AccountID" />
                 <ScalarProperty Name="Username" ColumnName="Username" />
                 <ScalarProperty Name="Password" ColumnName="Password" />
