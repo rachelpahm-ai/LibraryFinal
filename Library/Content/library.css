@@ -407,3 +407,158 @@ a {
     justify-self: end;
     white-space: nowrap;
 }
+
+
+/* ===== HERO READER - BOOK COVER DISPLAY ===== */
+
+.bn-hero--reader {
+    display: grid;
+    grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr);
+    align-items: center;
+    gap: 40px;
+    min-height: 410px;
+}
+
+    /* Cột nội dung */
+    .bn-hero--reader .bn-hero-content {
+        min-width: 0;
+    }
+
+/* Tổng đầu sách dưới thanh tìm kiếm */
+.bn-reader-total {
+    display: flex;
+    align-items: center;
+    margin-top: 20px;
+}
+
+.bn-reader-total-info strong {
+    display: block;
+    color: #30348f;
+    font-size: 20px;
+    font-weight: 700;
+}
+
+.bn-reader-total-info span {
+    display: block;
+    color: #69708f;
+    font-size: 14px;
+    margin-top: 4px;
+}
+
+/* Khung chứa 3 bìa sách */
+.bn-hero--reader .bn-hero-books {
+    position: relative;
+    width: 100%;
+    height: 340px;
+    min-width: 0;
+    isolation: isolate;
+}
+
+/* Nền tím nhạt phía sau */
+.bn-hero--reader .bn-hero-books-bg {
+    position: absolute;
+    inset: 25px 5%;
+    border-radius: 50%;
+    background: #e9e7fa;
+    z-index: 0;
+}
+
+/* Kích thước chung cho bìa */
+.bn-hero--reader .bn-hero-book {
+    position: absolute;
+    width: 34%;
+    max-width: 165px;
+    aspect-ratio: 2 / 3;
+    border-radius: 6px;
+    overflow: hidden;
+    box-shadow: 0 16px 30px rgba(30, 32, 75, 0.22);
+}
+
+    .bn-hero--reader .bn-hero-book img {
+        display: block;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+/* Mắt Biếc - bên trái */
+.bn-hero--reader .bn-hero-book-left {
+    left: 5%;
+    top: 85px;
+    transform: rotate(-7deg);
+    z-index: 1;
+}
+
+/* Tâm Lý Học Thành Công - chính giữa */
+.bn-hero--reader .bn-hero-book-center {
+    left: 31%;
+    top: 32px;
+    width: 40%;
+    max-width: 190px;
+    z-index: 3;
+}
+
+/* Lược Sử Thời Gian - bên phải */
+.bn-hero--reader .bn-hero-book-right {
+    right: 4%;
+    top: 95px;
+    transform: rotate(7deg);
+    z-index: 2;
+}
+
+/* Responsive */
+@media (max-width: 900px) {
+    .bn-hero--reader {
+        grid-template-columns: 1fr;
+        gap: 24px;
+    }
+
+        .bn-hero--reader .bn-hero-books {
+            max-width: 440px;
+            margin: 0 auto;
+        }
+}
+
+@media (max-width: 576px) {
+    .bn-hero--reader .bn-hero-books {
+        height: 290px;
+    }
+
+    .bn-hero--reader .bn-hero-book-left {
+        top: 70px;
+    }
+
+    .bn-hero--reader .bn-hero-book-center {
+        top: 20px;
+    }
+
+    .bn-hero--reader .bn-hero-book-right {
+        top: 75px;
+    }
+}
+
+/* Tinh chỉnh thống kê đầu sách dành cho Reader */
+
+.bn-hero--reader .bn-reader-total {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-top: 18px;
+}
+
+.bn-reader-total-icon {
+    width: 46px;
+    height: 46px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #e7e6fa;
+    color: #30348f;
+    border-radius: 12px;
+}
+
+/* Giảm chiều cao Hero Reader khoảng 20px */
+.bn-hero--reader {
+    min-height: 390px;
+}

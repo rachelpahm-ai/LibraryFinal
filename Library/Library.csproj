@@ -140,6 +140,9 @@
     <Compile Include="Controllers\MembersController.cs" />
     <Compile Include="Controllers\ReservationsController.cs" />
     <Compile Include="Controllers\UsersController.cs" />
+    <Content Include="Content\images\luoc-su-thoi-gian.jpg" />
+    <Content Include="Content\images\mat-biec.jpg" />
+    <Content Include="Content\images\tam-ly-hoc-thanh-cong.jpg" />
     <Content Include="Views\Members\Index.cshtml" />
     <Content Include="Views\Members\_MemberForm.cshtml" />
     <Content Include="Views\Members\Details.cshtml" />
@@ -317,7 +320,6 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
-    <Folder Include="Content\images\" />
     <Folder Include="Views\Account\" />
     <Folder Include="Views\Index\" />
   </ItemGroup>

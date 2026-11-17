@@ -1,53 +1,109 @@
-﻿using Library.Models;
+﻿
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 using System.Web.Mvc;
+using System.Data.Entity;
+using Library.Models;
 using Library.Filters;
 
 namespace Library.Controllers
 {
-    // Controller xử lý các request của trang thư viện
+    // Controller xử lý trang chủ thư viện BookNest
     public class LibraryController : Controller
     {
-        // GET: Library
-        // Action Index xử lý URL /Library/Index
-
-        // GET: Library
+        // GET: Library/Index
         // Trang chủ thư viện - lấy dữ liệu từ SQL Server
         public ActionResult Index(string search)
         {
+            // Tránh trình duyệt dùng lại trang đã cache
+            // khi người dùng đăng nhập hoặc đăng xuất.
+            Response.Cache.SetCacheability(HttpCacheability.NoCache);
+            Response.Cache.SetNoStore();
+
             using (var db = new LibraryManagementEntities())
             {
-                // 1. THỐNG KÊ TRANG CHỦ
+                // ========================================
+                // 1. XÁC ĐỊNH VAI TRÒ NGƯỜI DÙNG
+                // ========================================
 
-                // Tổng số đầu sách trong database
+                string role = null;
+
+                if (User != null &&
+                    User.Identity != null &&
+                    User.Identity.IsAuthenticated)
+                {
+                    string username = User.Identity.Name;
+
+                    role = db.Accounts
+                        .AsNoTracking()
+                        .Where(a => a.Username == username)
+                        .Select(a => a.Role)
+                        .FirstOrDefault();
+                }
+
+                // Chuẩn hóa vai trò
+                role = (role ?? "").Trim();
+
+                bool isAdmin = string.Equals(
+                    role,
+                    "Admin",
+                    StringComparison.OrdinalIgnoreCase);
+
+                bool isLibrarian = string.Equals(
+                    role,
+                    "Librarian",
+                    StringComparison.OrdinalIgnoreCase);
+
+                // Chỉ nhân viên được xem thống kê quản lý
+                bool showStats = isAdmin || isLibrarian;
+
+                // Truyền trạng thái hiển thị sang View
+                ViewBag.ShowManagementStats = showStats;
+
+
+                // ========================================
+                // 2. THỐNG KÊ TỔNG ĐẦU SÁCH
+                // ========================================
+
+                // Tất cả người dùng đều được xem
+                // tổng số đầu sách trong thư viện.
                 ViewBag.TotalBooks = db.Books.Count();
 
-                // Tổng số bản sách đang có trong kho
-                ViewBag.Available = db.Books
-                    .Where(b => b.IsActive == true)
-                    .Sum(b => (int?)b.StockQuantity) ?? 0;
 
-                // Tổng số thể loại
-                ViewBag.TotalCategories = db.Categories.Count();
+                // ========================================
+                // 3. THỐNG KÊ DÀNH CHO ADMIN / LIBRARIAN
+                // ========================================
 
-                // Tổng thành viên đang hoạt động
-                ViewBag.TotalMembers = db.Members
-                    .Count(m => m.IsLocked == false);
+                if (showStats)
+                {
+                    // Tổng số bản sách còn trong kho
+                    ViewBag.Available = db.Books
+                        .Where(b => b.IsActive == true)
+                        .Sum(b => (int?)b.StockQuantity) ?? 0;
 
-                // Số phiếu chưa có ngày trả
-                // Tạm sử dụng ReturnDate vì bảng Loan chưa có Status
-                ViewBag.TotalLoans = db.Loans
-                    .Count(l => l.ReturnDate == null);
+                    // Tổng số thể loại
+                    ViewBag.TotalCategories =
+                        db.Categories.Count();
 
-                // Số yêu cầu đặt trước đang chờ xử lý
-                ViewBag.PendingReservations = db.Reservations
-                    .Count(r => r.Status == "Chờ");
+                    // Tổng thành viên đang hoạt động
+                    ViewBag.TotalMembers = db.Members
+                        .Count(m => m.IsLocked == false);
+
+                    // Tổng phiếu mượn chưa trả
+                    ViewBag.TotalLoans = db.Loans
+                        .Count(l => l.ReturnDate == null);
+
+                    // Tổng yêu cầu đặt trước đang chờ
+                    ViewBag.PendingReservations =
+                        db.Reservations
+                            .Count(r => r.Status == "Chờ");
+                }
 
 
-                // 2. TRUY VẤN DANH SÁCH SÁCH
+                // ========================================
+                // 4. TRUY VẤN DANH SÁCH SÁCH
+                // ========================================
 
                 var query =
                     from b in db.Books.AsNoTracking()
@@ -59,7 +115,9 @@ namespace Library.Controllers
                     select new { b, c, a };
 
 
-                // 3. TÌM KIẾM SÁCH
+                // ========================================
+                // 5. TÌM KIẾM SÁCH
+                // ========================================
 
                 if (!string.IsNullOrWhiteSpace(search))
                 {
@@ -68,12 +126,13 @@ namespace Library.Controllers
                     query = query.Where(x =>
                         x.b.Title.Contains(keyword) ||
                         x.a.AuthorName.Contains(keyword) ||
-                        x.c.CategoryName.Contains(keyword)
-                    );
+                        x.c.CategoryName.Contains(keyword));
                 }
 
 
-                // 4. CHUYỂN DỮ LIỆU SANG VIEWMODEL
+                // ========================================
+                // 6. CHUYỂN SANG BOOKCARDVIEWMODEL
+                // ========================================
 
                 var books = query
                     .OrderByDescending(x => x.b.BookID)
@@ -92,27 +151,33 @@ namespace Library.Controllers
                     .ToList();
 
 
-                // 5. GIỮ LẠI TỪ KHÓA TÌM KIẾM
+                // ========================================
+                // 7. TRUYỀN DỮ LIỆU SANG VIEW
+                // ========================================
 
                 ViewBag.Search = search;
-
-
-                // 6. TRUYỀN DANH SÁCH SÁCH SANG VIEW
 
                 return View(books);
             }
         }
 
 
+        // ========================================
+        // TRANG GIỚI THIỆU
+        // ========================================
+
         // GET: Library/About
-        // Hiển thị trang Giới thiệu thư viện
         public ActionResult About()
         {
             return View();
         }
 
-        // GET: Library/TestDatabase
-        // Kiểm tra kết nối Entity Framework với SQL Server
+
+        // ========================================
+        // KIỂM TRA KẾT NỐI DATABASE
+        // ========================================
+
+        // Chỉ Admin được truy cập
         [RoleAuthorize("Admin")]
         public ActionResult TestDatabase()
         {
@@ -120,16 +185,13 @@ namespace Library.Controllers
             {
                 int totalBooks = db.Database
                     .SqlQuery<int>(
-                        "SELECT COUNT(*) FROM dbo.Book"
-                    )
+                        "SELECT COUNT(*) FROM dbo.Book")
                     .Single();
 
                 return Content(
                     "Kết nối database thành công! " +
-                    "Tổng số sách: " + totalBooks
-                );
+                    "Tổng số sách: " + totalBooks);
             }
-            //demo
         }
     }
 }

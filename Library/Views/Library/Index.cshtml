@@ -7,151 +7,218 @@
     Layout = "~/Views/Shared/LibraryLayout.cshtml";
 }
 
-<!-- HERO SECTION -->
-<section class="bn-hero">
-    <div>
-        <h1>Tìm cuốn sách tiếp theo của bạn</h1>
 
-        <p>
-            Kho học liệu điện tử HUFLIT:
-            tra cứu, mượn và đặt trước sách
-            ngay trên một trang.
-        </p>
+    <!-- HERO SECTION -->
+    <section class="bn-hero @(ViewBag.ShowManagementStats == true ? "" : "bn-hero--reader")">
 
-        <!-- Thanh tìm kiếm -->
-        @using (Html.BeginForm(
-            "Index",
-            "Library",
-            FormMethod.Get,
-            new { @class = "bn-search", role = "search" }))
-        {
-            <input type="search"
-                   name="search"
-                   value="@ViewBag.Search"
-                   placeholder="Nhập tên sách, tác giả hoặc thể loại"
-                   aria-label="Tìm sách" />
+        <!-- CỘT TRÁI -->
+        <div class="bn-hero-content">
 
-            <button type="submit" class="btn btn-primary">
-                Tìm sách
-            </button>
-        }
-    </div>
+            <h1>Tìm cuốn sách tiếp theo của bạn</h1>
 
-    <!-- THỐNG KÊ TỪ DATABASE -->
-    <div class="bn-stats">
+            <p>
+                Kho học liệu điện tử HUFLIT:
+                tra cứu, mượn và đặt trước sách
+                ngay trên một trang.
+            </p>
 
-        <div class="bn-stat hl">
-            <b>@ViewBag.TotalBooks</b>
-            <span>Tổng đầu sách</span>
+            <!-- Thanh tìm kiếm -->
+            @using (Html.BeginForm(
+                "Index",
+                "Library",
+                FormMethod.Get,
+                new { @class = "bn-search", role = "search" }))
+            {
+                <input type="search"
+                       name="search"
+                       value="@ViewBag.Search"
+                       placeholder="Nhập tên sách, tác giả hoặc thể loại"
+                       aria-label="Tìm sách" />
+
+                <button type="submit" class="btn btn-primary">
+                    Tìm sách
+                </button>
+            }
+
+            <!-- TỔNG ĐẦU SÁCH: CHỈ HIỂN THỊ RIÊNG Ở HERO READER -->
+            @if (ViewBag.ShowManagementStats != true)
+            {
+                <div class="bn-reader-total">
+
+                    <div class="bn-reader-total-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg"
+                             width="24" height="24"
+                             viewBox="0 0 24 24"
+                             fill="none"
+                             stroke="currentColor"
+                             stroke-width="1.8"
+                             stroke-linecap="round"
+                             stroke-linejoin="round">
+                            <path d="M12 7v14" />
+                            <path d="M3 18V4a1 1 0 0 1 1-1h4a4 4 0 0 1 4 4
+                     4 4 0 0 1 4-4h4a1 1 0 0 1 1 1v14
+                     a1 1 0 0 1-1 1h-5a3 3 0 0 0-3 2
+                     3 3 0 0 0-3-2H4a1 1 0 0 1-1-1z" />
+                        </svg>
+                    </div>
+
+                    <div class="bn-reader-total-info">
+                        <strong>@ViewBag.TotalBooks đầu sách</strong>
+                        <span>Đang chờ bạn khám phá</span>
+                    </div>
+
+                </div>
+            }
+
         </div>
+
+        <!-- CỘT PHẢI -->
         @if (ViewBag.ShowManagementStats == true)
         {
-            <div class="bn-stat">
-                <b>@ViewBag.Available</b>
-                <span>Bản sách trong kho</span>
+            <!-- ADMIN / LIBRARIAN: GIỮ NGUYÊN 6 Ô THỐNG KÊ -->
+            <div class="bn-stats">
+
+                <div class="bn-stat hl">
+                    <b>@ViewBag.TotalBooks</b>
+                    <span>Tổng đầu sách</span>
+                </div>
+
+                <div class="bn-stat">
+                    <b>@ViewBag.Available</b>
+                    <span>Bản sách trong kho</span>
+                </div>
+
+                <div class="bn-stat">
+                    <b>@ViewBag.TotalCategories</b>
+                    <span>Thể loại</span>
+                </div>
+
+                <div class="bn-stat">
+                    <b>@ViewBag.TotalMembers</b>
+                    <span>Thành viên hoạt động</span>
+                </div>
+
+                <div class="bn-stat">
+                    <b>@ViewBag.TotalLoans</b>
+                    <span>Phiếu chưa ghi nhận trả</span>
+                </div>
+
+                <div class="bn-stat">
+                    <b>@ViewBag.PendingReservations</b>
+                    <span>Yêu cầu đặt trước đang chờ</span>
+                </div>
+
             </div>
-
-            <div class="bn-stat">
-                <b>@ViewBag.TotalCategories</b>
-                <span>Thể loại</span>
-            </div>
-
-            <div class="bn-stat">
-                <b>@ViewBag.TotalMembers</b>
-                <span>Thành viên hoạt động</span>
-            </div>
-
-            <div class="bn-stat">
-                <b>@ViewBag.TotalLoans</b>
-                <span>Phiếu chưa ghi nhận trả</span>
-            </div>
-
-            <div class="bn-stat">
-                <b>@ViewBag.PendingReservations</b>
-                <span>Yêu cầu đặt trước đang chờ</span>
-            </div>
-         }
-
-        </div>
-</section>
-
-<!-- DANH SÁCH SÁCH -->
-<div class="d-flex justify-content-between align-items-end mb-3">
-
-    <h2 class="h4 fw-bold m-0">
-        Sách trong thư viện
-    </h2>
-
-    <a href="@Url.Action("Index", "Library")">
-        Xem tất cả
-    </a>
-
-</div>
-
-<!-- KIỂM TRA DANH SÁCH RỖNG -->
-@if (!Model.Any())
-{
-    <div class="bn-panel">
-        <p class="text-muted mb-0">
-            Không tìm thấy sách phù hợp.
-        </p>
-    </div>
-}
-else
-{
-    <!-- DANH SÁCH BOOK CARD -->
-    <div class="bn-grid">
-
-        @foreach (var b in Model)
+        }
+        else
         {
-            <div class="bn-card">
+            <!-- READER: 3 BÌA SÁCH XẾP LỚP -->
 
-                <!-- ẢNH BÌA SÁCH -->
-                <div class="bn-cover">
+    
+            <div class="bn-hero-books">
 
-                    <span>@b.Title</span>
+                <div class="bn-hero-books-bg"></div>
 
-                    @if (!string.IsNullOrEmpty(b.ImageUrl))
-                    {
-                        <img src="@Url.Content("~/Content/images/" + b.ImageUrl)"
-                             alt="@b.Title"
-                             onerror="this.style.display='none'" />
-                    }
-
+                <!-- Bìa trái: Mắt Biếc -->
+                <div class="bn-hero-book bn-hero-book-left">
+                    <img src="@Url.Content("~/Content/images/mat-biec.jpg")"
+                         alt="Mắt Biếc" />
                 </div>
 
-                <!-- THÔNG TIN SÁCH -->
-                <div class="bn-cardinfo">
-
-                    <h3 class="text-truncate">
-                        @b.Title
-                    </h3>
-
-                    <p>@b.AuthorName</p>
-
-                    <p>Thể loại: @b.CategoryName</p>
-
-                    <p>
-                        Giá: @b.Price.ToString("N0") VNĐ
-                    </p>
-
-                    <!-- TRẠNG THÁI SÁCH -->
-                    @if (b.StockQuantity > 0)
-                    {
-                        <span class="bn-badge-ok">
-                            Còn @b.StockQuantity bản
-                        </span>
-                    }
-                    else
-                    {
-                        <span class="bn-badge-out">
-                            Hết sách
-                        </span>
-                    }
-
+                <!-- Bìa giữa: Tâm Lý Học Thành Công -->
+                <div class="bn-hero-book bn-hero-book-center">
+                    <img src="@Url.Content("~/Content/images/tam-ly-hoc-thanh-cong.jpg")"
+                         alt="Tâm Lý Học Thành Công" />
                 </div>
+
+                <!-- Bìa phải: Lược Sử Thời Gian -->
+                <div class="bn-hero-book bn-hero-book-right">
+                    <img src="@Url.Content("~/Content/images/luoc-su-thoi-gian.jpg")"
+                         alt="Lược Sử Thời Gian" />
+                </div>
+
             </div>
         }
 
+    </section>
+
+    <!-- DANH SÁCH SÁCH -->
+    <div class="d-flex justify-content-between align-items-end mb-3">
+
+        <h2 class="h4 fw-bold m-0">
+            Sách trong thư viện
+        </h2>
+
+        <a href="@Url.Action("Index", "Library")">
+            Xem tất cả
+        </a>
+
     </div>
-}
+
+    <!-- KIỂM TRA DANH SÁCH RỖNG -->
+    @if (!Model.Any())
+    {
+        <div class="bn-panel">
+            <p class="text-muted mb-0">
+                Không tìm thấy sách phù hợp.
+            </p>
+        </div>
+    }
+    else
+    {
+        <!-- DANH SÁCH BOOK CARD -->
+        <div class="bn-grid">
+
+            @foreach (var b in Model)
+            {
+                <div class="bn-card">
+
+                    <!-- ẢNH BÌA SÁCH -->
+                    <div class="bn-cover">
+
+                        <span>@b.Title</span>
+
+                        @if (!string.IsNullOrEmpty(b.ImageUrl))
+                        {
+                            <img src="@Url.Content("~/Content/images/" + b.ImageUrl)"
+                                 alt="@b.Title"
+                                 onerror="this.style.display='none'" />
+                        }
+
+                    </div>
+
+                    <!-- THÔNG TIN SÁCH -->
+                    <div class="bn-cardinfo">
+
+                        <h3 class="text-truncate">
+                            @b.Title
+                        </h3>
+
+                        <p>@b.AuthorName</p>
+
+                        <p>Thể loại: @b.CategoryName</p>
+
+                        <p>
+                            Giá: @b.Price.ToString("N0") VNĐ
+                        </p>
+
+                        <!-- TRẠNG THÁI SÁCH -->
+                        @if (b.StockQuantity > 0)
+                        {
+                            <span class="bn-badge-ok">
+                                Còn @b.StockQuantity bản
+                            </span>
+                        }
+                        else
+                        {
+                            <span class="bn-badge-out">
+                                Hết sách
+                            </span>
+                        }
+
+                    </div>
+                </div>
+            }
+
+        </div>
+    }
