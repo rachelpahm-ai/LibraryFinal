@@ -17,8 +17,8 @@ namespace Library.Models.ViewModels
 
         [Display(Name = "Vai trò")]
         [Required(ErrorMessage = "Vui lòng chọn vai trò.")]
-        [RegularExpression(@"^(Admin|Librarian)$",
-            ErrorMessage = "Vai trò chỉ được là Admin hoặc Librarian.")]
+        [RegularExpression(@"^(Admin|Librarian|Reader)$",
+        ErrorMessage = "Vai trò phải là Admin, Librarian hoặc Reader.")]
         public string Role { get; set; }
 
         [Display(Name = "Mật khẩu")]

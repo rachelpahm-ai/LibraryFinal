@@ -44,33 +44,35 @@
             <b>@ViewBag.TotalBooks</b>
             <span>Tổng đầu sách</span>
         </div>
+        @if (ViewBag.ShowManagementStats == true)
+        {
+            <div class="bn-stat">
+                <b>@ViewBag.Available</b>
+                <span>Bản sách trong kho</span>
+            </div>
 
-        <div class="bn-stat">
-            <b>@ViewBag.Available</b>
-            <span>Bản sách trong kho</span>
+            <div class="bn-stat">
+                <b>@ViewBag.TotalCategories</b>
+                <span>Thể loại</span>
+            </div>
+
+            <div class="bn-stat">
+                <b>@ViewBag.TotalMembers</b>
+                <span>Thành viên hoạt động</span>
+            </div>
+
+            <div class="bn-stat">
+                <b>@ViewBag.TotalLoans</b>
+                <span>Phiếu chưa ghi nhận trả</span>
+            </div>
+
+            <div class="bn-stat">
+                <b>@ViewBag.PendingReservations</b>
+                <span>Yêu cầu đặt trước đang chờ</span>
+            </div>
+         }
+
         </div>
-
-        <div class="bn-stat">
-            <b>@ViewBag.TotalCategories</b>
-            <span>Thể loại</span>
-        </div>
-
-        <div class="bn-stat">
-            <b>@ViewBag.TotalMembers</b>
-            <span>Thành viên hoạt động</span>
-        </div>
-
-        <div class="bn-stat">
-            <b>@ViewBag.TotalLoans</b>
-            <span>Phiếu chưa ghi nhận trả</span>
-        </div>
-
-        <div class="bn-stat">
-            <b>@ViewBag.PendingReservations</b>
-            <span>Yêu cầu đặt trước đang chờ</span>
-        </div>
-
-    </div>
 </section>
 
 <!-- DANH SÁCH SÁCH -->

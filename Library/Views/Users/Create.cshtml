@@ -1,11 +1,11 @@
 ﻿@model Library.Models.ViewModels.UserCreateViewModel
 
 @{
-    ViewBag.Title = "Thêm tài khoản nhân viên";
+    ViewBag.Title = "Thêm tài khoản";
     Layout = "~/Views/Shared/LibraryLayout.cshtml";
 }
 
-<h2>Thêm tài khoản nhân viên</h2>
+<h2>Thêm tài khoản </h2>
 
 <div class="bn-panel p-4">
     @using (Html.BeginForm("Create", "Users", FormMethod.Post))
@@ -36,9 +36,31 @@
 
             @Html.DropDownListFor(
                 m => m.Role,
-                new SelectList(new[] { "Admin", "Librarian" }),
+                new SelectList(new[] { "Admin", "Librarian", "Reader" }),
                 "-- Chọn vai trò --",
                 new { @class = "form-select" })
+
+            <div class="mb-3" id="member-select-group" style="display:none;">
+                @Html.LabelFor(m => m.MemberID,
+                    new { @class = "form-label" })
+
+                @Html.DropDownListFor(
+                    m => m.MemberID,
+                    (SelectList)ViewBag.MemberOptions,
+                    "-- Chọn thành viên --",
+                    new { @class = "form-select" })
+
+                @Html.ValidationMessageFor(
+                    m => m.MemberID,
+                    "",
+                    new { @class = "text-danger" })
+
+                <div class="form-text">
+                    Chỉ áp dụng cho tài khoản Reader.
+                    Mỗi thành viên chỉ được liên kết với một tài khoản.
+                </div>
+            </div>
+
 
             @Html.ValidationMessageFor(m => m.Role, "",
                 new { @class = "text-danger" })
@@ -48,16 +70,16 @@
             @Html.LabelFor(m => m.Password,
                 new { @class = "form-label" })
 
-            @Html.PasswordFor(m => m.Password,new{@class = "form-control",autocomplete = "new-password"})
+            @Html.PasswordFor(m => m.Password, new { @class = "form-control", autocomplete = "new-password" })
 
             @Html.ValidationMessageFor(m => m.Password, "",
                 new { @class = "text-danger" })
         </div>
 
         <div class="mb-3">
-            @Html.LabelFor(m => m.ConfirmPassword,new { @class = "form-label" })
+            @Html.LabelFor(m => m.ConfirmPassword, new { @class = "form-label" })
 
-            @Html.PasswordFor(m => m.ConfirmPassword,new{@class = "form-control",autocomplete = "new-password"})
+            @Html.PasswordFor(m => m.ConfirmPassword, new { @class = "form-control", autocomplete = "new-password" })
 
             @Html.ValidationMessageFor(m => m.ConfirmPassword, "",
                 new { @class = "text-danger" })
@@ -69,5 +91,29 @@
 
         @Html.ActionLink("Quay lại", "Index", null,
             new { @class = "btn btn-outline-secondary" })
-     }
+
+
+    }
 </div>
+
+<script>document.addEventListener("DOMContentLoaded", function () {
+        const roleSelect = document.getElementById("Role");
+        const memberGroup = document.getElementById("member-select-group");
+        const memberSelect = document.getElementById("MemberID");
+
+        function updateMemberField() {
+            const isReader = roleSelect.value === "Reader";
+
+            memberGroup.style.display = isReader ? "block" : "none";
+            memberSelect.disabled = !isReader;
+
+            if (!isReader) {
+                memberSelect.value = "";
+            }
+        }
+
+        if (roleSelect && memberGroup && memberSelect) {
+            roleSelect.addEventListener("change", updateMemberField);
+            updateMemberField();
+        }
+    });</script>
