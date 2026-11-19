@@ -1,89 +1,377 @@
 ﻿@model IEnumerable<Library.Models.Author>
+@using System.Linq
+@using System.Collections.Generic
+@using System.Web.Mvc
 
 @{
-    ViewBag.Title = "Quản lý Tác giả";
+    Layout = "~/Views/Shared/LibraryLayout.cshtml";
+
+    // Giá trị này được AuthorsController.Index() truyền sang.
+    bool canManage = ViewBag.CanManageAuthors == true;
+    ViewBag.Title = canManage ? "Quản lý tác giả" : "Khám phá tác giả";
+
+    var authors = Model == null
+        ? new List<Library.Models.Author>()
+        : Model.ToList();
+
+    string currentSearch = Convert.ToString(ViewBag.CurrentSearch) ?? "";
+    string currentFilter = Convert.ToString(ViewBag.CurrentFilter) ?? "";
+    int page = ViewBag.Page == null ? 1 : (int)ViewBag.Page;
+    int totalPages = ViewBag.TotalPages == null ? 0 : (int)ViewBag.TotalPages;
+
+    var filterOptions = new List<SelectListItem>
+{
+        new SelectListItem { Value = "", Text = "Tất cả tác giả" },
+        new SelectListItem { Value = "HasBooks", Text = "Có tác phẩm" },
+        new SelectListItem { Value = "NoBooks", Text = "Chưa có tác phẩm" }
+    };
 }
 
-<div class="container py-4">
-    <!-- Tiêu đề trang chuẩn ảnh mẫu -->
-    <h2 class="fw-bold text-dark mb-4">Quản lý Tác giả</h2>
+<style>
+    .bn-authors-header {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-between;
+        align-items: center;
+        gap: 16px;
+        margin-bottom: 22px;
+    }
 
-    <!-- Thông báo nếu có -->
+        .bn-authors-header h1 {
+            color: #1d2041;
+            font-size: 30px;
+            font-weight: 750;
+            margin: 0 0 6px;
+        }
+
+    .bn-authors-subtitle {
+        color: #6c7189;
+        margin: 0;
+    }
+
+    .bn-authors-primary {
+        display: inline-block;
+        text-decoration: none;
+        background: #30348f;
+        color: #fff;
+        padding: 11px 19px;
+        border-radius: 10px;
+        font-weight: 650;
+    }
+
+        .bn-authors-primary:hover {
+            background: #252977;
+            color: #fff;
+        }
+
+    .bn-authors-search-panel {
+        background: #fff;
+        border: 1px solid #e5e6f0;
+        border-radius: 15px;
+        padding: 20px;
+        margin-bottom: 24px;
+    }
+
+    .bn-authors-search-row {
+        display: grid;
+        grid-template-columns: minmax(0,2fr) minmax(0,1.2fr) auto auto;
+        gap: 12px;
+        align-items: center;
+    }
+
+        .bn-authors-search-row input, .bn-authors-search-row select {
+            min-height: 44px;
+        }
+
+    .bn-authors-empty {
+        border: 1px solid #e5e6f0;
+        background: #fff;
+        text-align: center;
+        border-radius: 15px;
+        padding: 35px 20px;
+        color: #6c7189;
+    }
+
+    .bn-authors-panel {
+        background: #fff;
+        border: 1px solid #e5e6f0;
+        border-radius: 15px;
+        overflow: hidden;
+    }
+
+    .bn-authors-table {
+        width: 100%;
+        margin-bottom: 0;
+    }
+
+        .bn-authors-table th {
+            color: #647088;
+            background: #f8f9fc;
+            font-size: 14px;
+            font-weight: 650;
+            padding: 16px 20px;
+        }
+
+        .bn-authors-table td {
+            padding: 15px 20px;
+            vertical-align: middle;
+        }
+
+    .bn-authors-name-link {
+        color: #30348f;
+        text-decoration: none;
+        font-weight: 700;
+    }
+
+        .bn-authors-name-link:hover {
+            color: #4d52cb;
+            text-decoration: underline;
+        }
+
+    .bn-authors-grid {
+        display: grid;
+        grid-template-columns: repeat(4,minmax(0,1fr));
+        gap: 20px;
+        margin-bottom: 25px;
+    }
+
+    .bn-author-card {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        min-width: 0;
+        background: #fff;
+        border: 1px solid #e5e6f0;
+        border-radius: 16px;
+        padding: 24px 16px 18px;
+        text-align: center;
+        transition: transform .2s,box-shadow .2s;
+    }
+
+        .bn-author-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 28px rgba(35,37,98,.10);
+        }
+
+    .bn-author-monogram {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 74px;
+        height: 74px;
+        flex-shrink: 0;
+        border-radius: 50%;
+        background: #edecfb;
+        color: #30348f;
+        font-size: 32px;
+        font-weight: 750;
+        margin-bottom: 16px;
+    }
+
+    .bn-author-card-name {
+        color: #1d2041;
+        font-weight: 750;
+        font-size: 18px;
+        text-decoration: none;
+        line-height: 1.4;
+        min-height: 50px;
+    }
+
+        .bn-author-card-name:hover {
+            color: #30348f;
+        }
+
+    .bn-author-card-count {
+        color: #727891;
+        font-size: 14px;
+        margin: 12px 0 18px;
+    }
+
+    .bn-author-card-action {
+        display: block;
+        margin-top: auto;
+        width: 100%;
+        text-decoration: none;
+        border-radius: 9px;
+        background: #30348f;
+        color: #fff;
+        padding: 11px 12px;
+        font-weight: 650;
+    }
+
+        .bn-author-card-action:hover {
+            background: #252977;
+            color: #fff;
+        }
+
+    .bn-authors-pages {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        margin: 26px 0 12px;
+    }
+
+    .bn-authors-page {
+        display: inline-block;
+        min-width: 38px;
+        padding: 8px 12px;
+        text-align: center;
+        border: 1px solid #d7d9ec;
+        border-radius: 8px;
+        text-decoration: none;
+        color: #30348f;
+        background: #fff;
+    }
+
+        .bn-authors-page:hover {
+            background: #efeffa;
+            color: #30348f;
+        }
+
+    .bn-authors-page-current {
+        background: #30348f;
+        color: #fff;
+        border-color: #30348f;
+    }
+
+    @@media (max-width:1100px) {
+        .bn-authors-grid {
+            grid-template-columns: repeat(3,minmax(0,1fr));
+        }
+    }
+
+    @@media (max-width:800px) {
+        .bn-authors-search-row {
+            grid-template-columns: 1fr 1fr;
+        }
+
+        .bn-authors-grid {
+            grid-template-columns: repeat(2,minmax(0,1fr));
+        }
+    }
+
+    @@media (max-width:520px) {
+        .bn-authors-search-row {
+            grid-template-columns: 1fr;
+        }
+
+        .bn-authors-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+
+<div class="container py-4">
+    @if (canManage)
+    {
+        <div class="bn-authors-header">
+            <div>
+                <h1>Quản lý tác giả</h1>
+                <p class="bn-authors-subtitle">Quản lý danh sách tác giả và xem những tác phẩm có trong thư viện.</p>
+            </div>
+            <a class="bn-authors-primary" href="@Url.Action("Create", "Authors")">+ Thêm tác giả mới</a>
+        </div>
+    }
+    else
+    {
+        <div class="bn-authors-header">
+            <div>
+                <h1>Khám phá tác giả</h1>
+                <p class="bn-authors-subtitle">Chọn một tác giả để xem những tác phẩm hiện có tại BookNest.</p>
+            </div>
+        </div>
+    }
+
     @if (TempData["Success"] != null)
     {
-        <div class="alert alert-success border-0 shadow-sm mb-3">@TempData["Success"]</div>
+        <div class="alert alert-success mb-3" role="alert">@TempData["Success"]</div>
     }
     @if (TempData["Error"] != null)
     {
-        <div class="alert alert-danger border-0 shadow-sm mb-3">@TempData["Error"]</div>
+        <div class="alert alert-danger mb-3" role="alert">@TempData["Error"]</div>
     }
 
-    <!-- Khối Card Lọc & Thêm mới (Giống hệt ảnh mẫu) -->
-    <div class="card border-0 shadow-sm rounded-4 p-4 mb-4 bg-white">
-        <!-- Nút Thêm mới nằm ở hàng đầu tiên inside card -->
-        <div class="mb-3">
-            @Html.ActionLink("Thêm tác giả mới", "Create", null, new { @class = "btn text-white fw-semibold px-4 py-2 rounded-3", @style = "background-color: #2B3688;" })
-        </div>
-
-        <!-- Hàng tìm kiếm, bộ lọc và các nút -->
-        @using (Html.BeginForm("Index", "Authors", FormMethod.Get, new { @class = "row g-3 align-items-center" }))
+    <div class="bn-authors-search-panel">
+        @using (Html.BeginForm("Index", "Authors", FormMethod.Get))
         {
-            <div class="col-md-5">
-                <input type="text" name="searchString" class="form-control py-2 px-3 rounded-3 border-light-subtle" placeholder="Tìm kiếm theo tên tác giả..." value="@ViewBag.CurrentSearch" />
-            </div>
-            
-            <div class="col-md-3">
-                <select name="filter" class="form-select py-2 px-3 rounded-3 border-light-subtle">
-                    <option value="">-- Tất cả trạng thái --</option>
-                    <option value="HasBooks" @(ViewBag.CurrentFilter == "HasBooks" ? "selected" : "")>Có sách</option>
-                    <option value="NoBooks" @(ViewBag.CurrentFilter == "NoBooks" ? "selected" : "")>Chưa có sách</option>
-                </select>
-            </div>
-
-            <div class="col-md-4 d-flex gap-2">
-                <button type="submit" class="btn text-white px-4 py-2 fw-semibold rounded-3" style="background-color: #5A626A;">Lọc dữ liệu</button>
-                @Html.ActionLink("Làm mới", "Index", null, new { @class = "btn btn-outline-secondary px-3 py-2 fw-semibold rounded-3" })
+            <div class="bn-authors-search-row">
+                <input class="form-control" name="searchString" type="search"
+                       placeholder="Tìm tên tác giả..." value="@currentSearch" aria-label="Tên tác giả" />
+                @Html.DropDownList("filter", new SelectList(filterOptions, "Value", "Text", currentFilter),
+                         new { @class = "form-select", aria_label = "Lọc tác giả theo tác phẩm" })
+                <button type="submit" class="btn btn-primary" style="background:#30348f;border-color:#30348f;min-height:44px;">Tìm kiếm</button>
+                <a class="btn btn-outline-secondary" href="@Url.Action("Index", "Authors")" style="min-height:44px;line-height:30px;">Làm mới</a>
             </div>
         }
     </div>
 
-    <!-- Bảng danh sách Tác giả (Giống hệt ảnh mẫu) -->
-    <div class="card border-0 shadow-sm rounded-4 overflow-hidden bg-white">
-        <div class="card-body p-0">
-            <table class="table align-middle mb-0">
-                <thead class="table-light">
-                    <tr class="text-secondary small fw-semibold">
-                        <th class="py-3 ps-4">Tên tác giả</th>
-                        <th class="py-3 text-center" style="width: 280px;">Thao tác</th>
+    @if (authors.Count == 0)
+    {
+        <div class="bn-authors-empty">Không tìm thấy tác giả phù hợp.</div>
+    }
+    else if (canManage)
+    {
+        <!-- ADMIN / LIBRARIAN: Bảng quản lý tác giả -->
+        <div class="bn-authors-panel table-responsive">
+            <table class="table table-hover align-middle bn-authors-table">
+                <thead>
+                    <tr>
+                        <th>Tên tác giả</th>
+                        <th class="text-center">Số tác phẩm</th>
+                        <th class="text-center">Thao tác</th>
                     </tr>
                 </thead>
                 <tbody>
-                    @if (!Model.Any())
+                    @foreach (var item in authors)
                     {
+                        var bookCount = item.Books == null ? 0 : item.Books.Count;
                         <tr>
-                            <td colspan="2" class="text-center py-4 text-muted">
-                                Không tìm thấy dữ liệu tác giả nào phù hợp.
+                            <td><a class="bn-authors-name-link" href="@Url.Action("Details", "Authors", new { id = item.AuthorID })">@item.AuthorName</a></td>
+                            <td class="text-center">@bookCount tác phẩm</td>
+                            <td class="text-center">
+                                <div class="d-flex justify-content-center flex-wrap gap-2">
+                                    <a class="btn btn-sm btn-outline-primary" href="@Url.Action("Details", "Authors", new { id = item.AuthorID })">Xem tác phẩm</a>
+                                    <a class="btn btn-sm btn-outline-secondary" href="@Url.Action("Edit", "Authors", new { id = item.AuthorID })">Sửa</a>
+                                    <a class="btn btn-sm btn-outline-danger" href="@Url.Action("Delete", "Authors", new { id = item.AuthorID })">Xóa</a>
+                                </div>
                             </td>
                         </tr>
-                    }
-                    else
-                    {
-                        foreach (var item in Model)
-                        {
-                            <tr>
-                                <td class="ps-4 fw-bold text-dark">
-                                    @item.AuthorName
-                                </td>
-                                <td class="text-center py-3">
-                                    @Html.ActionLink("Xem", "Details", new { id = item.AuthorID }, new { @class = "btn btn-info btn-sm text-white px-3 me-1 rounded-2" })
-                                    @Html.ActionLink("Sửa", "Edit", new { id = item.AuthorID }, new { @class = "btn btn-warning btn-sm text-dark px-3 me-1 rounded-2" })
-                                    @Html.ActionLink("Xóa", "Delete", new { id = item.AuthorID }, new { @class = "btn btn-danger btn-sm px-3 rounded-2" })
-                                </td>
-                            </tr>
-                        }
                     }
                 </tbody>
             </table>
         </div>
-    </div>
+    }
+    else
+    {
+        <!-- KHÁCH / READER: Card tên tác giả, không có nút quản trị -->
+        <div class="bn-authors-grid">
+            @foreach (var item in authors)
+            {
+                var bookCount = item.Books == null ? 0 : item.Books.Count(b => b.IsActive == true);
+                var firstLetter = string.IsNullOrWhiteSpace(item.AuthorName)
+                    ? "A"
+                    : item.AuthorName.Trim().Substring(0, 1).ToUpperInvariant();
+                <div class="bn-author-card">
+                    <div class="bn-author-monogram">@firstLetter</div>
+                    <a class="bn-author-card-name" href="@Url.Action("Details", "Authors", new { id = item.AuthorID })">@item.AuthorName</a>
+                    <div class="bn-author-card-count">@bookCount tác phẩm trong thư viện</div>
+                    <a class="bn-author-card-action" href="@Url.Action("Details", "Authors", new { id = item.AuthorID })">Xem tác phẩm</a>
+                </div>
+            }
+        </div>
+    }
+
+    @if (totalPages > 1)
+    {
+        <nav class="bn-authors-pages" aria-label="Phân trang tác giả">
+            @for (int i = 1; i <= totalPages; i++)
+            {
+                <a class="bn-authors-page @(i == page ? "bn-authors-page-current" : "")"
+                   href="@Url.Action("Index", "Authors", new { searchString = currentSearch, filter = currentFilter, page = i })"
+                   aria-current="@(i == page ? "page" : null)">@i</a>
+            }
+        </nav>
+    }
 </div>

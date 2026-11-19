@@ -14,13 +14,46 @@ namespace Library.Controllers
     {
         private LibraryManagementEntities db = new LibraryManagementEntities();
 
+        private bool CanManageAuthors()
+        {
+            if (User == null ||
+                User.Identity == null ||
+                !User.Identity.IsAuthenticated)
+            {
+                return false;
+            }
+
+            string username = User.Identity.Name;
+
+            string role = db.Accounts
+                .Where(a => a.Username == username)
+                .Select(a => a.Role)
+                .FirstOrDefault();
+
+            role = (role ?? "").Trim();
+
+            return string.Equals(role, "Admin",
+                       StringComparison.OrdinalIgnoreCase)
+                || string.Equals(role, "Librarian",
+                       StringComparison.OrdinalIgnoreCase);
+        }
+
+
         public ActionResult Index(string searchString, string filter, int? page)
         {
-            ViewBag.Title = "Quản lý Tác giả";
+            bool canManage = CanManageAuthors();
+
+            ViewBag.CanManageAuthors = canManage;
+
+            ViewBag.Title = canManage
+                ? "Quản lý Tác giả"
+                : "Khám phá Tác giả";
             int pageSize = 8;
             int pageNumber = (page ?? 1);
 
-            var authors = db.Authors.AsQueryable();
+            var authors = db.Authors
+     .Include(a => a.Books)
+     .AsQueryable();
 
             // Tìm kiếm theo tên
             if (!string.IsNullOrEmpty(searchString))
@@ -58,16 +91,45 @@ namespace Library.Controllers
         }
 
         // DETAILS
+
+        // GET: Authors/Details/5
+        // Xem tác giả và các tác phẩm thuộc tác giả
         public ActionResult Details(int? id)
         {
-            ViewBag.Title = "Chi tiết Tác giả";
-            if (id == null) return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+            if (id == null)
+            {
+                return new HttpStatusCodeResult(
+                    HttpStatusCode.BadRequest);
+            }
 
-            var author = db.Authors.Include(a => a.Books).FirstOrDefault(a => a.AuthorID == id);
-            if (author == null) return HttpNotFound();
+            bool canManage = CanManageAuthors();
+
+            var author = db.Authors
+                .AsNoTracking()
+                .Include(a => a.Books)
+                .FirstOrDefault(a => a.AuthorID == id.Value);
+
+            if (author == null)
+            {
+                return HttpNotFound();
+            }
+
+            // Khách và Reader chỉ xem sách đang hiển thị
+            if (!canManage)
+            {
+                author.Books = author.Books
+                    .Where(b => b.IsActive == true)
+                    .OrderBy(b => b.Title)
+                    .ToList();
+            }
+
+            ViewBag.CanManageAuthors = canManage;
+            ViewBag.Title = "Tác phẩm của " + author.AuthorName;
+
 
             return View(author);
         }
+
 
         // CREATE (GET & POST)
         [RoleAuthorize("Admin", "Librarian")]
