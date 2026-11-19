@@ -50,30 +50,97 @@ namespace Library.Controllers
             return uniqueName; // lưu tên file (không lưu đường dẫn tuyệt đối) vào SQL
         }
         private LibraryManagementEntities db = new LibraryManagementEntities();
-
-        // GET: Books
-        public ActionResult Index()
+        // Kiểm tra người dùng có quyền quản lý sách hay không
+        private bool CanManageBooks()
         {
-            var books = db.Books.Include(b => b.Author).Include(b => b.Category);
-            return View(books.ToList());
+            if (User == null ||
+                User.Identity == null ||
+                !User.Identity.IsAuthenticated)
+            {
+                return false;
+            }
+
+            string username = User.Identity.Name;
+
+            string role = db.Accounts
+                .Where(a => a.Username == username)
+                .Select(a => a.Role)
+                .FirstOrDefault();
+
+            role = (role ?? "").Trim();
+
+            return string.Equals(role, "Admin",
+                       StringComparison.OrdinalIgnoreCase)
+                || string.Equals(role, "Librarian",
+                       StringComparison.OrdinalIgnoreCase);
         }
 
+        // GET: Books
+        // Danh mục sách dùng chung cho tất cả người dùng
+        public ActionResult Index()
+        {
+            bool canManage = CanManageBooks();
+
+            ViewBag.CanManageBooks = canManage;
+            ViewBag.Title = "Danh mục sách";
+
+            var books = db.Books
+                .AsNoTracking()
+                .Include(b => b.Author)
+                .Include(b => b.Category)
+                .AsQueryable();
+
+            // Khách và Reader chỉ xem sách đang hoạt động
+            if (!canManage)
+            {
+                books = books.Where(b => b.IsActive == true);
+            }
+
+            // Không lọc StockQuantity:
+            // sách hết hàng vẫn được hiển thị
+            return View(
+                books.OrderBy(b => b.Title).ToList()
+            );
+        }
+
+
+
         // GET: Books/Details/5
+        // Xem thông tin chi tiết một cuốn sách
         public ActionResult Details(int? id)
         {
             if (id == null)
             {
-                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+                return new HttpStatusCodeResult(
+                    HttpStatusCode.BadRequest);
             }
-            Book book = db.Books.Find(id);
+
+            bool canManage = CanManageBooks();
+
+            var book = db.Books
+                .AsNoTracking()
+                .Include(b => b.Author)
+                .Include(b => b.Category)
+                .SingleOrDefault(b => b.BookID == id.Value);
+
             if (book == null)
             {
                 return HttpNotFound();
             }
+
+            // Không công khai sách ngừng hoạt động
+            if (!canManage && book.IsActive != true)
+            {
+                return HttpNotFound();
+            }
+
+            ViewBag.CanManageBooks = canManage;
+            ViewBag.Title = "Chi tiết sách";
+
             return View(book);
         }
 
-        // GET: Books/Create
+
         // GET: Books/Create
         [RoleAuthorize("Admin", "Librarian")]
         public ActionResult Create()

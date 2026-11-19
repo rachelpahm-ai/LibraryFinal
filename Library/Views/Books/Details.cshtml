@@ -82,9 +82,29 @@
     <hr class="my-4" />
 
     <!-- ĐIỀU HƯỚNG -->
-    <div class="d-flex flex-wrap gap-2">
-        <a href="@Url.Action("Edit", "Books", new { id = Model.BookID })" class="btn btn-primary">Chỉnh sửa sách</a>
-        <a href="@Url.Action("Delete", "Books", new { id = Model.BookID })" class="btn btn-outline-danger">Xóa sách</a>
-        <a href="@Url.Action("Index", "Books")" class="btn btn-outline-secondary">Quay về danh sách</a>
+    <!-- NÚT THAO TÁC THEO PHÂN QUYỀN -->
+    <div class="d-flex flex-wrap gap-2 mt-3">
+
+        @* Chỉ Admin và Librarian thấy Sửa, Xóa *@
+        @if (ViewBag.CanManageBooks == true)
+        {
+            <a href="@Url.Action("Edit", "Books", new { id = Model.BookID })"
+               class="bn-btn">
+                Chỉnh sửa sách
+            </a>
+
+            <a href="@Url.Action("Delete", "Books", new { id = Model.BookID })"
+               class="btn btn-outline-danger">
+                Xóa sách
+            </a>
+        }
+
+        @* Tất cả người dùng đều được quay lại *@
+        <a href="@Url.Action("Index", "Books")"
+           class="btn btn-outline-secondary">
+            Quay về danh sách
+        </a>
+
     </div>
+
 </div>
