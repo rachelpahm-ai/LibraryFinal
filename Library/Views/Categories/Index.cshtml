@@ -1,59 +1,321 @@
 ﻿@model IEnumerable<Library.Models.Category>
+@using System.Collections.Generic
+@using System.Linq
 
 @{
-    ViewBag.Title = "Quản lý Thể loại";
+    Layout = "~/Views/Shared/LibraryLayout.cshtml";
+
+    bool canManage = ViewBag.CanManageCategories == true;
+    ViewBag.Title = canManage ? "Quản lý thể loại" : "Khám phá thể loại";
+
+    var categories = Model == null
+        ? new List<Library.Models.Category>()
+        : Model.ToList();
+
+    string currentSearch = ViewBag.CurrentSearch as string ?? "";
+    int currentPage = ViewBag.Page == null ? 1 : (int)ViewBag.Page;
+    int totalPages = ViewBag.TotalPages == null ? 0 : (int)ViewBag.TotalPages;
 }
 
-<div class="container py-4">
-    <!-- Header trang & Nút thêm mới -->
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <div>
-            <h2 class="fw-bold text-dark mb-1">Quản lý Thể loại</h2>
-            <p class="text-muted small mb-0">Danh sách các thể loại sách hiện có trong hệ thống</p>
-        </div>
-        @Html.ActionLink("Thêm thể loại mới", "Create", null, new { @class = "btn btn-primary px-4 py-2 fw-bold rounded-3 shadow-sm" })
-    </div>
+<style>
+    .bn-cat-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 16px;
+        margin-bottom: 24px;
+    }
 
-    <!-- Thông báo lỗi (nếu bị chặn xóa) -->
-    @if (TempData["Error"] != null)
+        .bn-cat-header h1 {
+            color: #1d2041;
+            font-size: 30px;
+            font-weight: 750;
+            margin-bottom: 7px;
+        }
+
+        .bn-cat-header p {
+            color: #747991;
+            margin-bottom: 0;
+        }
+
+    .bn-cat-search {
+        display: flex;
+        gap: 10px;
+        background: #fff;
+        border: 1px solid #e4e5f1;
+        border-radius: 13px;
+        padding: 9px;
+        margin-bottom: 24px;
+    }
+
+        .bn-cat-search input {
+            min-width: 0;
+            flex: 1;
+            border: 0;
+            outline: 0;
+            padding: 8px 12px;
+            background: transparent;
+            color: #252747;
+        }
+
+        .bn-cat-search button {
+            border: 0;
+            border-radius: 9px;
+            background: #30348f;
+            color: #fff;
+            font-weight: 650;
+            padding: 10px 20px;
+        }
+
+    .bn-cat-grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 20px;
+        margin-bottom: 28px;
+    }
+
+    .bn-cat-card {
+        display: flex;
+        flex-direction: column;
+        min-width: 0;
+        padding: 24px;
+        border: 1px solid #e4e5f1;
+        border-radius: 16px;
+        background: #fff;
+        text-decoration: none;
+        transition: transform .2s, box-shadow .2s, border-color .2s;
+    }
+
+        .bn-cat-card:hover {
+            transform: translateY(-4px);
+            border-color: #b9baf0;
+            box-shadow: 0 12px 26px rgba(35, 37, 98, .09);
+        }
+
+    .bn-cat-card-icon {
+        width: 55px;
+        height: 55px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 14px;
+        background: #ecebfa;
+        color: #30348f;
+        font-size: 28px;
+        margin-bottom: 18px;
+    }
+
+    .bn-cat-card-name {
+        color: #202348;
+        font-size: 20px;
+        font-weight: 700;
+        line-height: 1.35;
+        margin-bottom: 8px;
+    }
+
+    .bn-cat-card-count {
+        color: #6c7189;
+        font-size: 14px;
+        margin-bottom: 22px;
+    }
+
+    .bn-cat-card-action {
+        margin-top: auto;
+        color: #30348f;
+        font-weight: 700;
+        font-size: 14px;
+    }
+
+    .bn-cat-empty {
+        border: 1px solid #e4e5f1;
+        border-radius: 16px;
+        background: #fff;
+        padding: 38px 20px;
+        text-align: center;
+        color: #6c7189;
+    }
+
+    .bn-cat-pagination {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 8px;
+        margin-top: 24px;
+    }
+
+        .bn-cat-pagination a {
+            min-width: 38px;
+            padding: 8px 12px;
+            border: 1px solid #dcdeeb;
+            background: #fff;
+            border-radius: 8px;
+            color: #30348f;
+            text-decoration: none;
+            text-align: center;
+        }
+
+            .bn-cat-pagination a.is-active {
+                background: #30348f;
+                border-color: #30348f;
+                color: #fff;
+                font-weight: 700;
+            }
+
+    @@media (max-width: 900px) {
+        .bn-cat-grid {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+    }
+
+    @@media (max-width: 560px) {
+        .bn-cat-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .bn-cat-search {
+            flex-wrap: wrap;
+        }
+
+            .bn-cat-search button {
+                width: 100%;
+            }
+    }
+</style>
+
+<div class="container py-4">
+    @if (canManage)
     {
-        <div class="alert alert-danger alert-dismissible fade show shadow-sm border-0 mb-4" role="alert">
-            <i class="fas fa-exclamation-circle me-2"></i> @TempData["Error"]
+        <!-- ADMIN / LIBRARIAN: GIỮ BẢNG QUẢN LÝ -->
+        <div class="bn-cat-header">
+            <div>
+                <h1>Quản lý thể loại</h1>
+                <p>Danh sách các thể loại sách hiện có trong hệ thống.</p>
+            </div>
+            <a href="@Url.Action("Create", "Categories")" class="bn-btn">
+                + Thêm thể loại mới
+            </a>
+        </div>
+    }
+    else
+    {
+        <!-- READER / KHÁCH: KHÔNG CÓ NÚT QUẢN TRỊ -->
+        <div class="bn-cat-header">
+            <div>
+                <h1>Khám phá theo thể loại</h1>
+                <p>Chọn một thể loại để xem các cuốn sách trong thư viện BookNest.</p>
+            </div>
         </div>
     }
 
-    <!-- Bảng danh sách Thể loại -->
-    <div class="card border-0 shadow-sm rounded-3 overflow-hidden bg-white">
-        <div class="card-body p-0">
-            <table class="table table-hover align-middle mb-0">
-                <thead class="table-light">
-                    <tr>
-                        <th class="py-3 ps-4 text-secondary text-uppercase fs-7">Tên thể loại</th>
-                        <th class="py-3 text-secondary text-uppercase fs-7 text-center">Số lượng sách</th>
-                        <th class="py-3 text-center text-secondary text-uppercase fs-7" style="width: 260px;">Thao tác</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach (var item in Model)
-                    {
-                        <tr>
-                            <td class="ps-4 fw-bold text-dark">
-                                @item.CategoryName
-                            </td>
-                            <td class="text-center">
-                                <span class="badge bg-light text-dark border px-3 py-2 rounded-pill fw-normal">
-                                    @item.Books.Count cuốn
-                                </span>
-                            </td>
-                            <td class="text-center py-3">
-                                @Html.ActionLink("Xem", "Details", new { id = item.CategoryID }, new { @class = "btn btn-info btn-sm text-white px-3 me-1 fw-semibold rounded-2" })
-                                @Html.ActionLink("Sửa", "Edit", new { id = item.CategoryID }, new { @class = "btn btn-warning btn-sm text-dark px-3 me-1 fw-semibold rounded-2" })
-                                @Html.ActionLink("Xóa", "Delete", new { id = item.CategoryID }, new { @class = "btn btn-danger btn-sm px-3 fw-semibold rounded-2" })
-                            </td>
-                        </tr>
-                    }
-                </tbody>
-            </table>
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success" role="alert">@TempData["Success"]</div>
+    }
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger" role="alert">@TempData["Error"]</div>
+    }
+
+    <form action="@Url.Action("Index", "Categories")" method="get" class="bn-cat-search" role="search">
+        <input type="search"
+               name="searchString"
+               value="@currentSearch"
+               placeholder="Tìm tên thể loại sách..."
+               aria-label="Tìm thể loại" />
+        <button type="submit">Tìm kiếm</button>
+    </form>
+
+    @if (canManage)
+    {
+        <div class="card border-0 shadow-sm rounded-3 overflow-hidden bg-white">
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th class="py-3 ps-4 text-secondary">Tên thể loại</th>
+                                <th class="py-3 text-center text-secondary">Số lượng sách</th>
+                                <th class="py-3 text-center text-secondary" style="width:280px;">Thao tác</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (categories.Count == 0)
+                            {
+                                <tr><td colspan="3" class="text-center text-muted py-4">Không tìm thấy thể loại phù hợp.</td></tr>
+                            }
+                            else
+                            {
+                                foreach (var item in categories)
+                                {
+                                    <tr>
+                                        <td class="ps-4 fw-bold">
+                                            <a href="@Url.Action("Details", "Categories", new { id = item.CategoryID })">
+                                                @item.CategoryName
+                                            </a>
+                                        </td>
+                                        <td class="text-center">
+                                            <span class="badge bg-light text-dark border px-3 py-2 rounded-pill fw-normal">
+                                                @(item.Books == null ? 0 : item.Books.Count) cuốn
+                                            </span>
+                                        </td>
+                                        <td class="text-center py-3">
+                                            <div class="d-flex flex-wrap gap-2 justify-content-center">
+                                                <a href="@Url.Action("Details", "Categories", new { id = item.CategoryID })"
+                                                   class="btn btn-sm btn-outline-primary">Xem sách</a>
+                                                <a href="@Url.Action("Edit", "Categories", new { id = item.CategoryID })"
+                                                   class="btn btn-sm btn-outline-secondary">Sửa</a>
+                                                <a href="@Url.Action("Delete", "Categories", new { id = item.CategoryID })"
+                                                   class="btn btn-sm btn-outline-danger">Xóa</a>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                }
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
         </div>
-    </div>
+    }
+    else
+    {
+        <div>
+            @if (categories.Count == 0)
+            {
+                <div class="bn-cat-empty">Không tìm thấy thể loại phù hợp.</div>
+            }
+            else
+            {
+                <div class="bn-cat-grid">
+                    @foreach (var item in categories)
+                    {
+                        int visibleBookCount = item.Books == null
+                            ? 0
+                            : item.Books.Count(b => b.IsActive == true);
+
+                        <a class="bn-cat-card"
+                           href="@Url.Action("Details", "Categories", new { id = item.CategoryID })">
+                            <div class="bn-cat-card-icon" aria-hidden="true">📚</div>
+                            <div class="bn-cat-card-name">@item.CategoryName</div>
+                            <div class="bn-cat-card-count">@visibleBookCount đầu sách</div>
+                            <div class="bn-cat-card-action">Xem sách thuộc thể loại →</div>
+                        </a>
+                    }
+                </div>
+            }
+        </div>
+    }
+
+    @if (totalPages > 1)
+    {
+        <nav class="bn-cat-pagination" aria-label="Phân trang thể loại">
+            @for (int p = 1; p <= totalPages; p++)
+            {
+                <a href="@Url.Action("Index", "Categories", new { page = p, searchString = currentSearch })"
+                   class="@(p == currentPage ? "is-active" : "")"
+                   aria-current="@(p == currentPage ? "page" : null)">@p</a>
+            }
+        </nav>
+    }
 </div>

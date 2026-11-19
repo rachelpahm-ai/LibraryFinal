@@ -1,50 +1,351 @@
 ﻿@model Library.Models.Category
+@using System.Collections.Generic
+@using System.Linq
 
 @{
-    ViewBag.Title = "Chi tiết Thể loại";
+    bool canManage = ViewBag.CanManageCategories == true;
+    ViewBag.Title = "Sách thuộc thể loại " + Model.CategoryName;
+    Layout = "~/Views/Shared/LibraryLayout.cshtml";
+
+    // Giữ lại sách đã ẩn cho Admin/Librarian; khách và Reader chỉ xem sách đang hiển thị.
+    var books = Model.Books == null
+        ? new List<Library.Models.Book>()
+        : Model.Books
+            .Where(b => canManage || b.IsActive == true)
+            .OrderBy(b => b.Title)
+            .ToList();
 }
 
-<div class="container mt-4">
-    <h2>Chi tiết Thể loại</h2>
-    <hr />
+<style>
+    .bn-category-page {
+        padding: 26px 0 38px;
+    }
 
-    <div>
-        <dl class="row">
-            <dt class="col-sm-3">Tên thể loại:</dt>
-            <dd class="col-sm-9 fw-bold">@Html.DisplayFor(model => model.CategoryName)</dd>
-        </dl>
+    .bn-category-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        flex-wrap: wrap;
+        gap: 18px;
+        margin-bottom: 28px;
+    }
+
+    .bn-category-eyebrow {
+        color: #30348f;
+        font-size: 13px;
+        font-weight: 700;
+        letter-spacing: .06em;
+        text-transform: uppercase;
+        margin-bottom: 8px;
+    }
+
+    .bn-category-header h1 {
+        color: #1d2041;
+        font-size: 32px;
+        font-weight: 750;
+        line-height: 1.25;
+        margin: 0 0 10px;
+    }
+
+    .bn-category-header p {
+        color: #6c7189;
+        margin: 0;
+    }
+
+    .bn-category-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        align-items: center;
+    }
+
+    .bn-category-action {
+        display: inline-flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 42px;
+        padding: 9px 16px;
+        background: #fff;
+        color: #30348f;
+        border: 1px solid #cbd0e3;
+        border-radius: 9px;
+        text-decoration: none;
+        font-weight: 650;
+    }
+
+        .bn-category-action:hover {
+            color: #24276f;
+            background: #f4f3fb;
+        }
+
+    .bn-category-action--primary {
+        background: #30348f;
+        border-color: #30348f;
+        color: #fff;
+    }
+
+        .bn-category-action--primary:hover {
+            color: #fff;
+            background: #24276f;
+        }
+
+    .bn-category-grid {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 22px;
+    }
+
+    .bn-category-card {
+        min-width: 0;
+        display: flex;
+        flex-direction: column;
+        padding: 16px;
+        background: #fff;
+        border: 1px solid #e4e6f0;
+        border-radius: 16px;
+        box-shadow: 0 4px 16px rgba(32, 34, 80, .035);
+    }
+
+    .bn-category-cover {
+        position: relative;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 240px;
+        background: #f0eff9;
+        border-radius: 11px;
+        overflow: hidden;
+        margin-bottom: 15px;
+    }
+
+        .bn-category-cover img {
+            position: relative;
+            z-index: 1;
+            display: block;
+            max-width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
+    .bn-category-cover-placeholder {
+        position: absolute;
+        color: #aeb1d2;
+        font-size: 55px;
+        font-weight: 700;
+    }
+
+    .bn-category-book-title {
+        display: -webkit-box;
+        -webkit-box-orient: vertical;
+        -webkit-line-clamp: 2;
+        overflow: hidden;
+        color: #292d8a;
+        font-size: 17px;
+        font-weight: 700;
+        text-decoration: none;
+        line-height: 1.45;
+        margin-bottom: 8px;
+    }
+
+        .bn-category-book-title:hover {
+            color: #5558d2;
+        }
+
+    .bn-category-meta {
+        color: #6c7189;
+        font-size: 13px;
+        margin-bottom: 6px;
+    }
+
+    .bn-category-summary {
+        display: -webkit-box;
+        -webkit-box-orient: vertical;
+        -webkit-line-clamp: 3;
+        overflow: hidden;
+        color: #626981;
+        font-size: 13px;
+        line-height: 1.6;
+        margin: 10px 0 14px;
+        min-height: 62px;
+    }
+
+    .bn-category-card-bottom {
+        margin-top: auto;
+    }
+
+    .bn-category-stock {
+        display: inline-block;
+        padding: 6px 10px;
+        margin-bottom: 12px;
+        border-radius: 8px;
+        font-size: 12px;
+        font-weight: 700;
+    }
+
+    .bn-category-stock--available {
+        background: #e4f5eb;
+        color: #147c49;
+    }
+
+    .bn-category-stock--empty {
+        background: #fde8e8;
+        color: #b32635;
+    }
+
+    .bn-category-hidden {
+        display: inline-block;
+        color: #7a5211;
+        background: #fff2d8;
+        padding: 5px 9px;
+        border-radius: 8px;
+        font-size: 12px;
+        font-weight: 650;
+        margin: 0 0 12px 5px;
+    }
+
+    .bn-category-details-link {
+        display: block;
+        padding: 11px;
+        border-radius: 9px;
+        text-align: center;
+        text-decoration: none;
+        color: #fff;
+        background: #30348f;
+        font-weight: 650;
+    }
+
+        .bn-category-details-link:hover {
+            color: #fff;
+            background: #24276f;
+        }
+
+    .bn-category-empty {
+        padding: 42px 24px;
+        background: #fff;
+        border: 1px solid #e4e6f0;
+        border-radius: 15px;
+        text-align: center;
+        color: #6c7189;
+    }
+
+    @@media (max-width: 1100px) {
+        .bn-category-grid {
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+        }
+    }
+
+    @@media (max-width: 768px) {
+        .bn-category-grid {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 15px;
+        }
+
+        .bn-category-header h1 {
+            font-size: 27px;
+        }
+    }
+
+    @@media (max-width: 480px) {
+        .bn-category-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+
+<div class="container bn-category-page">
+    <div class="bn-category-header">
+        <div>
+            <div class="bn-category-eyebrow">Thư viện BookNest / Thể loại</div>
+            <h1>@Model.CategoryName</h1>
+            <p>Có @books.Count đầu sách thuộc thể loại này.</p>
+        </div>
+
+        <div class="bn-category-actions">
+            @* Chỉ nhân viên quản lý được chỉnh sửa thể loại. *@
+            @if (canManage)
+            {
+                <a href="@Url.Action("Edit", "Categories", new { id = Model.CategoryID })"
+                   class="bn-category-action bn-category-action--primary">
+                    Chỉnh sửa thể loại
+                </a>
+            }
+
+            <a href="@Url.Action("Index", "Categories")" class="bn-category-action">
+                Quay lại danh sách thể loại
+            </a>
+        </div>
     </div>
 
-    <h4 class="mt-4">Danh sách sách thuộc thể loại</h4>
-    @if (Model.Books != null && Model.Books.Any())
+    @if (books.Count == 0)
     {
-        <table class="table table-bordered table-striped">
-            <thead class="table-secondary">
-                <tr>
-                    <th>Tên sách</th>
-                    <th>Giá</th>
-                    <th>Số lượng tồn</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var book in Model.Books)
-                {
-                    <tr>
-                        <td>@book.Title</td>
-                        <td>@book.Price</td>
-                        <td>@book.StockQuantity</td>
-                    </tr>
-                }
-            </tbody>
-        </table>
+        <div class="bn-category-empty">
+            <h4>Chưa có sách thuộc thể loại này</h4>
+            <p>Hiện chưa có đầu sách nào được hiển thị trong thể loại @Model.CategoryName.</p>
+        </div>
     }
     else
     {
-        <p class="text-muted">Chưa có cuốn sách nào thuộc thể loại này[cite: 7].</p>
-    }
+        <div class="bn-category-grid">
+            @foreach (var book in books)
+            {
+                <article class="bn-category-card">
+                    <div class="bn-category-cover">
+                        <span class="bn-category-cover-placeholder">
+                            @(string.IsNullOrWhiteSpace(book.Title) ? "B" : book.Title.Substring(0, 1))
+                        </span>
 
-    <p class="mt-3">
-        @Html.ActionLink("Sửa", "Edit", new { id = Model.CategoryID }, new { @class = "btn btn-warning" })
-        @Html.ActionLink("Quay lại danh sách", "Index", null, new { @class = "btn btn-secondary ms-2" })
-    </p>
+                        @if (!string.IsNullOrWhiteSpace(book.ImageUrl))
+                        {
+                            <img src="@Url.Content("~/Content/images/" + book.ImageUrl)"
+                                 alt="Bìa sách @book.Title"
+                                 loading="lazy"
+                                 onerror="this.style.display='none'" />
+                        }
+                    </div>
+
+                    <a class="bn-category-book-title"
+                       href="@Url.Action("Details", "Books", new { id = book.BookID })">
+                        @book.Title
+                    </a>
+
+                    <div class="bn-category-meta">
+                        Tác giả: @(book.Author != null ? book.Author.AuthorName : "Chưa cập nhật")
+                    </div>
+
+                    <div class="bn-category-meta">
+                        Giá sách: @book.Price.ToString("N0") đ
+                    </div>
+
+                    <p class="bn-category-summary">
+                        @(string.IsNullOrWhiteSpace(book.Description)
+                            ? "Cuốn sách chưa có nội dung tóm tắt."
+                            : book.Description)
+                    </p>
+
+                    <div class="bn-category-card-bottom">
+                        @if (book.StockQuantity > 0)
+                        {
+                            <span class="bn-category-stock bn-category-stock--available">
+                                Còn sách (@book.StockQuantity bản)
+                            </span>
+                        }
+                        else
+                        {
+                            <span class="bn-category-stock bn-category-stock--empty">Hết sách</span>
+                        }
+
+                        @if (canManage && book.IsActive != true)
+                        {
+                            <span class="bn-category-hidden">Sách đã ẩn</span>
+                        }
+
+                        <a class="bn-category-details-link"
+                           href="@Url.Action("Details", "Books", new { id = book.BookID })">
+                            Xem chi tiết sách
+                        </a>
+                    </div>
+                </article>
+            }
+        </div>
+    }
 </div>
