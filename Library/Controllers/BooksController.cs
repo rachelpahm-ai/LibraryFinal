@@ -157,8 +157,7 @@ namespace Library.Controllers
         [ValidateAntiForgeryToken]
         [RoleAuthorize("Admin", "Librarian")]
         public ActionResult Create(
-      [Bind(Include = "Title,CategoryID,AuthorID,Price,StockQuantity,Description,IsActive")] Book book,
-      HttpPostedFileBase ImageFile)
+        [Bind(Include = "Title,CategoryID,AuthorID,Price,StockQuantity,Description,IsActive")] Book book, HttpPostedFileBase ImageFile)
         {
 
             if (ImageFile != null && ImageFile.ContentLength > 0 && !IsValidBookImage(ImageFile))

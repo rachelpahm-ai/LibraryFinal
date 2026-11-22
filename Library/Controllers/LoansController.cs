@@ -361,9 +361,9 @@ namespace Library.Controllers
                     db.SaveChanges();
                     transaction.Commit();
                 }
-
                 TempData["Success"] =
                     "Trả sách thành công. Đã cập nhật tồn kho.";
+
 
                 return RedirectToAction("Details",
                     new { id = id });
@@ -376,6 +376,7 @@ namespace Library.Controllers
                 return RedirectToAction("Details",
                     new { id = id });
             }
+
         }
 
         // GET: Loans/Cancel/5

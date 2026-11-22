@@ -52,8 +52,8 @@ namespace Library.Controllers
             int pageNumber = (page ?? 1);
 
             var authors = db.Authors
-     .Include(a => a.Books)
-     .AsQueryable();
+            .Include(a => a.Books)
+            .AsQueryable();
 
             // Tìm kiếm theo tên
             if (!string.IsNullOrEmpty(searchString))
