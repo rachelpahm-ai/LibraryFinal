@@ -87,8 +87,8 @@ namespace Library.Controllers
             // Ngày mượn luôn lấy ngày hiện tại
             model.LoanDate = DateTime.Today;
 
-            // Hạn trả mặc định sau 7 ngày
-            model.DueDate = DateTime.Today.AddDays(7);
+            // Hạn trả mặc định sau 14 ngày
+            model.DueDate = DateTime.Today.AddDays(14);
 
             LoadCreateLists(model);
 
