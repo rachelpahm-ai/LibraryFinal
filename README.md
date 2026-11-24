@@ -1,6 +1,6 @@
 # BookNest – Hệ thống quản lý thư viện
 
-**BookNest** là đồ án môn **Lập trình Web** tại **Trường Đại học Ngoại ngữ – Tin học TP.HCM (HUFLIT)**. Hệ thống hỗ trợ tra cứu sách, quản lý danh mục và thành viên, lập phiếu mượn – trả, xử lý tiền phạt quá hạn và quản lý yêu cầu đặt trước sách.
+**BookNest** là đồ án môn **Lập trình Web** tại **Trường Đại học Ngoại ngữ – Tin học TP.HCM (HUFLIT)**. Hệ thống hỗ trợ tra cứu sách, quản lý danh mục và thành viên, lập phiếu mượn – trả, xử lý tiền phạt quá hạn và quản lý yêu cầu đặt trước sách. Độc giả có thể theo dõi lịch sử mượn cá nhân sau khi đăng nhập.
 
 > **Phạm vi:** Đồ án phục vụ mục đích học tập và trình diễn trên môi trường phát triển (local). Tài khoản, số liệu và giao dịch trong bộ dữ liệu Seed là dữ liệu giả lập.
 
@@ -10,7 +10,7 @@
 |---|---|
 | Ngôn ngữ | C# |
 | Backend | ASP.NET MVC 5 trên .NET Framework 4.8 |
-| Giao diện | Razor Views, HTML5, CSS3, JavaScript |
+| Giao diện | Razor Views, HTML5, CSS3, JavaScript, Bootstrap 5.3.3 |
 | Cơ sở dữ liệu | Microsoft SQL Server / SQL Server LocalDB |
 | ORM | Entity Framework 6 – Database First (`Model1.edmx`) |
 | Xác thực & phân quyền | Forms Authentication; vai trò `Admin`, `Librarian`, `Reader` |
@@ -18,20 +18,51 @@
 
 ## 2. Chức năng chính
 
-### Khách truy cập và độc giả (`Reader`)
+### Khách truy cập
 - Xem trang chủ, danh mục sách, chi tiết sách, tác giả và thể loại.
 - Tra cứu sách và xem trạng thái còn/hết sách.
-- Không được thực hiện các thao tác CRUD quản trị.
+- Không được thực hiện các thao tác CRUD quản trị hoặc xem lịch sử mượn cá nhân.
+
+### Độc giả (`Reader`)
+- Sử dụng các chức năng tra cứu công khai.
+- Đăng nhập và chọn **Lịch sử mượn** trên thanh điều hướng để xem các phiếu của chính mình.
+- Xem ngày mượn, hạn trả, ngày trả thực tế, danh sách sách, trạng thái và tiền phạt đã ghi nhận.
+- Không được xem lịch sử của thành viên khác hoặc thực hiện CRUD quản trị.
 
 ### Thủ thư (`Librarian`)
 - Quản lý sách, thể loại, tác giả và thành viên.
 - Quản lý phiếu mượn: lập phiếu, tìm kiếm, xem chi tiết, xác nhận trả và hủy phiếu chưa trả.
 - Quản lý các yêu cầu đặt trước theo chức năng đã triển khai.
+- Xem lịch sử mượn của từng thành viên tại **Thành viên → Lịch sử mượn**.
 - Không có quyền quản lý tài khoản tại `/Users`.
 
 ### Quản trị viên (`Admin`)
 - Thực hiện các chức năng quản lý của thủ thư.
 - Quản lý tài khoản và vai trò người dùng.
+
+### Lịch sử mượn cá nhân và bảo vệ dữ liệu
+
+| Vai trò | Quyền xem lịch sử |
+|---|---|
+| Khách | Không được truy cập |
+| Reader | Chỉ xem lịch sử của chính mình |
+| Librarian | Xem lịch sử của từng thành viên |
+| Admin | Xem lịch sử của từng thành viên |
+
+- `LoanHistoryController` xác thực người dùng và xác định quyền truy cập từ `Account.Role` và `Account.MemberID`.
+- Reader truy cập `/LoanHistory`; nếu truyền `memberId` của người khác, Controller từ chối với HTTP 403.
+- Admin và Librarian truy cập từ nút **Lịch sử mượn** tại trang Thành viên (`/LoanHistory?memberId=...`).
+- Lịch sử được sắp xếp theo ngày mượn mới nhất; trạng thái gồm Đang mượn, Quá hạn và Đã trả. Tiền phạt hiển thị là giá trị đã lưu trong `Loan.TotalFine`, không phải số tiền dự tính cho phiếu chưa trả.
+- Chức năng chỉ đọc dữ liệu hiện có, không yêu cầu thay đổi schema hoặc EDMX. Các phiếu đã hủy và bị xóa không còn trong lịch sử.
+
+### Giao diện và trải nghiệm người dùng
+
+- Đồng bộ bảng dữ liệu, nút CRUD, bộ lọc và phân trang theo phong cách BookNest.
+- Nút thêm mới và tìm kiếm có nền tím; nút chi tiết có viền tím, nút sửa có viền xám và nút xóa có viền đỏ.
+- Phân biệt trạng thái phiếu mượn bằng màu sắc và nhãn văn bản; hiển thị vai trò tài khoản rõ ràng.
+- Thanh điều hướng hiển thị theo vai trò; Reader có mục Lịch sử mượn riêng, Admin và Librarian xem lịch sử qua trang Thành viên.
+- Navbar có menu thu gọn trên màn hình nhỏ, sử dụng Bootstrap Collapse.
+- CSS dùng chung tại `Library/Content/library.css`, layout tại `Library/Views/Shared/LibraryLayout.cshtml`.
 
 ### Quy tắc nghiệp vụ mượn – trả
 - Thành viên phải tồn tại, không bị khóa và có thẻ còn hạn.
@@ -110,7 +141,7 @@ Nếu máy dùng SQL Server instance khác, chỉ điều chỉnh `data source` 
 
 1. Mở file **`.sln`** ở thư mục gốc repository bằng Visual Studio 2022.
 2. Nếu Visual Studio yêu cầu, thực hiện **Restore NuGet Packages**.
-3. Chọn **Build → Rebuild Solution** (hoặc `Ctrl + Shift + B`).
+3. Chọn **Build → Rebuild Solution**.
 4. Nhấn **`Ctrl + F5`** để chạy website trên localhost.
 5. Mở trang **Sách** để kiểm tra dữ liệu và đăng nhập bằng tài khoản demo bên dưới.
 
@@ -138,10 +169,14 @@ LibraryFinal/
 │   └── 02_LibraryManagement_Seed.sql
 ├── Library/
 │   ├── Controllers/
+│   │   └── LoanHistoryController.cs
 │   ├── Models/              # Entity Framework và các model
 │   ├── Views/               # Giao diện Razor
+│   │   ├── LoanHistory/
+│   │   └── Shared/LibraryLayout.cshtml
 │   ├── Filters/             # Kiểm soát quyền truy cập
 │   ├── Content/
+│   │   ├── library.css      # CSS dùng chung
 │   │   └── images/          # Ảnh bìa sách
 │   └── Web.config
 ├── *.sln                    # File solution Visual Studio
@@ -167,7 +202,24 @@ LibraryFinal/
 | Không đăng nhập được tài khoản demo | Kiểm tra đã chạy Seed trên đúng database mà website kết nối. |
 | `CREATE TABLE` báo đối tượng đã tồn tại | Không chạy lại Schema trên database đã được khởi tạo. |
 
-## 10. Quy trình quản lý mã nguồn
+## 10. Kiểm thử nhanh sau khi cài đặt
+
+| Tình huống | Kết quả mong đợi |
+|---|---|
+| Đăng nhập với tài khoản demo | Hiển thị menu đúng vai trò |
+| Admin/Thủ thư chọn lịch sử tại trang Thành viên | Hiển thị phiếu của thành viên được chọn |
+| Reader mở `/LoanHistory` | Chỉ hiển thị phiếu của bản thân (có thể chưa có phiếu) |
+| Reader truyền `memberId` của thành viên khác | HTTP 403 |
+| Khách mở `/LoanHistory` | Yêu cầu đăng nhập |
+| Librarian truy cập `/Users` | Bị từ chối |
+| Tạo phiếu hợp lệ | Tồn kho giảm theo số lượng mượn |
+| Trả đúng hạn | Tồn kho được hoàn lại, tiền phạt bằng 0 |
+| Trả quá hạn | Tính tiền phạt 5.000 VNĐ/ngày/cuốn |
+| Thu nhỏ cửa sổ trình duyệt | Menu có thể thu gọn và mở lại |
+
+Đây là checklist kiểm thử kỳ vọng cho bản cài đặt mới, không phải cam kết rằng mọi trường hợp đã được kiểm thử tự động. Nên dùng database riêng để thử các thao tác thay đổi dữ liệu.
+
+## 11. Quy trình quản lý mã nguồn
 
 - Phát triển tính năng trên các nhánh `feature/*`.
 - Tích hợp và kiểm thử trên `test/merge-all` trước khi đưa phiên bản ổn định vào `main`.
@@ -176,3 +228,5 @@ LibraryFinal/
 ---
 
 **BookNest – Đồ án Lập trình Web | HUFLIT | 2026**
+
+Cập nhật tài liệu: 24/11/2026 – bổ sung lịch sử mượn cá nhân và đồng bộ giao diện.
