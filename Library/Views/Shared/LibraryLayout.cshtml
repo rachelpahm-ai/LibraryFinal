@@ -36,6 +36,9 @@
         role, "Librarian", StringComparison.OrdinalIgnoreCase);
 
     bool isStaff = isAdmin || isLibrarian;
+
+    bool isReader = string.Equals(
+        role, "Reader", StringComparison.OrdinalIgnoreCase);
 }
 
 <!DOCTYPE html>
@@ -85,6 +88,7 @@
 
 <body>
     <header class="bn-header @(isStaff ? "bn-header--staff" : "")">
+
         <div class="bn-wrap bn-nav">
 
             <!-- LOGO -->
@@ -94,10 +98,22 @@
                 <span>BookNest</span>
             </a>
 
-            <!-- MENU ĐIỀU HƯỚNG -->
-            <nav class="bn-links" aria-label="Điều hướng chính">
+            <!-- NÚT MENU MOBILE -->
+            <button class="bn-menu-toggle"
+                    type="button"
+                    data-bs-toggle="collapse"
+                    data-bs-target="#bookNestNavigation"
+                    aria-controls="bookNestNavigation"
+                    aria-expanded="false"
+                    aria-label="Mở menu">
+                ☰
+            </button>
 
-                <!-- MENU CÔNG KHAI -->
+            <!-- MENU ĐIỀU HƯỚNG -->
+            <nav class="bn-links collapse"
+                 id="bookNestNavigation"
+                 aria-label="Điều hướng chính">
+
                 <a class="@(ctrl == "Library" && action == "Index" ? "on" : "")"
                    href="@Url.Action("Index", "Library")">
                     Trang chủ
@@ -123,10 +139,19 @@
                     Tác giả
                 </a>
 
+                <!-- MENU DÀNH RIÊNG CHO READER -->
+                @if (isLoggedIn && isReader)
+                {
+                    <a class="@on("LoanHistory")"
+                       href="@Url.Action("Index", "LoanHistory")">
+                        Lịch sử mượn
+                    </a>
+                }
+
                 <!-- MENU ADMIN VÀ LIBRARIAN -->
                 @if (isStaff)
                 {
-                    <a class="@on("Members")"
+                    <a class="@(ctrl == "Members" || ctrl == "LoanHistory" ? "on" : "")"
                        href="@Url.Action("Index", "Members")">
                         Thành viên
                     </a>
@@ -142,7 +167,7 @@
                     </a>
                 }
 
-                <!-- CHỈ ADMIN -->
+                <!-- MENU CHỈ DÀNH CHO ADMIN -->
                 @if (isAdmin)
                 {
                     <a class="@on("Users")"
@@ -171,14 +196,14 @@
                         @Html.AntiForgeryToken()
 
                         <button type="submit"
-                                class="bn-btn bn-logout-btn">
+                                class="bn-btn bn-btn--primary bn-logout-btn">
                             Đăng xuất
                         </button>
                     }
                 }
                 else
                 {
-                    <a class="bn-btn"
+                    <a class="bn-btn bn-btn--primary"
                        href="@Url.Action("Login", "Auth")">
                         Đăng nhập
                     </a>
@@ -187,8 +212,8 @@
             </div>
 
         </div>
-    </header>
 
+    </header>
     <main class="bn-wrap bn-main">
 
         @if (TempData["Success"] != null)

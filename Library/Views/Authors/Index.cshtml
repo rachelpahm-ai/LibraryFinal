@@ -271,8 +271,10 @@
                 <h1>Quản lý tác giả</h1>
                 <p class="bn-authors-subtitle">Quản lý danh sách tác giả và xem những tác phẩm có trong thư viện.</p>
             </div>
-            <a class="bn-authors-primary" href="@Url.Action("Create", "Authors")">+ Thêm tác giả mới</a>
-        </div>
+<a class="bn-btn bn-btn--primary"
+   href="@Url.Action("Create", "Authors")">
+    + Thêm tác giả mới
+</a>        </div>
     }
     else
     {
@@ -301,8 +303,17 @@
                        placeholder="Tìm tên tác giả..." value="@currentSearch" aria-label="Tên tác giả" />
                 @Html.DropDownList("filter", new SelectList(filterOptions, "Value", "Text", currentFilter),
                          new { @class = "form-select", aria_label = "Lọc tác giả theo tác phẩm" })
-                <button type="submit" class="btn btn-primary" style="background:#30348f;border-color:#30348f;min-height:44px;">Tìm kiếm</button>
-                <a class="btn btn-outline-secondary" href="@Url.Action("Index", "Authors")" style="min-height:44px;line-height:30px;">Làm mới</a>
+                <button type="submit"
+                        class="bn-btn bn-btn--primary"
+                        style="min-height:44px;">
+                    Tìm kiếm
+                </button>
+
+                <a class="bn-btn bn-btn--edit"
+                   href="@Url.Action("Index", "Authors")"
+                   style="min-height:44px;">
+                    Làm mới
+                </a>
             </div>
         }
     </div>
@@ -315,7 +326,7 @@
     {
         <!-- ADMIN / LIBRARIAN: Bảng quản lý tác giả -->
         <div class="bn-authors-panel table-responsive">
-            <table class="table table-hover align-middle bn-authors-table">
+            <table class="table table-hover align-middle bn-authors-table bn-table">
                 <thead>
                     <tr>
                         <th>Tên tác giả</th>
@@ -331,10 +342,23 @@
                             <td><a class="bn-authors-name-link" href="@Url.Action("Details", "Authors", new { id = item.AuthorID })">@item.AuthorName</a></td>
                             <td class="text-center">@bookCount tác phẩm</td>
                             <td class="text-center">
-                                <div class="d-flex justify-content-center flex-wrap gap-2">
-                                    <a class="btn btn-sm btn-outline-primary" href="@Url.Action("Details", "Authors", new { id = item.AuthorID })">Xem tác phẩm</a>
-                                    <a class="btn btn-sm btn-outline-secondary" href="@Url.Action("Edit", "Authors", new { id = item.AuthorID })">Sửa</a>
-                                    <a class="btn btn-sm btn-outline-danger" href="@Url.Action("Delete", "Authors", new { id = item.AuthorID })">Xóa</a>
+                                <div class="bn-actions justify-content-center">
+
+                                    <a class="bn-btn bn-btn--view"
+                                       href="@Url.Action("Details", "Authors", new { id = item.AuthorID })">
+                                        Xem tác phẩm
+                                    </a>
+
+                                    <a class="bn-btn bn-btn--edit"
+                                       href="@Url.Action("Edit", "Authors", new { id = item.AuthorID })">
+                                        Sửa
+                                    </a>
+
+                                    <a class="bn-btn bn-btn--delete"
+                                       href="@Url.Action("Delete", "Authors", new { id = item.AuthorID })">
+                                        Xóa
+                                    </a>
+
                                 </div>
                             </td>
                         </tr>

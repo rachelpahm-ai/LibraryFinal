@@ -2,6 +2,7 @@
 
 @{
     ViewBag.Title = "Quản lý đặt trước";
+    Layout = "~/Views/Shared/LibraryLayout.cshtml";
 
     string search = ViewBag.Search as string;
     string currentStatus = ViewBag.CurrentStatus as string;
@@ -12,197 +13,331 @@
     int totalItems = (int)ViewBag.TotalItems;
 }
 
-<div class="d-flex justify-content-between align-items-center mb-3">
-    <h2>Quản lý đặt trước</h2>
+<div class="container-fluid mt-4">
 
-    @Html.ActionLink("Thêm mới", "Create", null,
-        new { @class = "btn btn-primary" })
-</div>
+    <h2 class="mb-4">Quản lý đặt trước</h2>
 
-<div class="bn-panel p-3 mb-3">
-    @using (Html.BeginForm("Index", "Reservations", FormMethod.Get))
-    {
-        <div class="row g-2">
-            <div class="col-md-5">
-                @Html.TextBox("search", search, new
-                {
-                    @class = "form-control",
-                    placeholder = "Tên thành viên hoặc tên sách",
-                    aria_label = "Tìm thành viên hoặc sách"
-                })
+    <!-- Khung tìm kiếm và lọc -->
+    <div class="card shadow-sm mb-4">
+        <div class="card-body">
+
+            <div class="row align-items-center mb-3">
+                <div class="col-md-6">
+
+                    @Html.ActionLink(
+                             "+ Thêm yêu cầu đặt trước",
+                             "Create",
+                             null,
+                             new { @class = "bn-btn bn-btn--primary" }
+                         )
+
+                </div>
             </div>
 
-            <div class="col-md-3">
-                @Html.DropDownList(
-                    "status",
-                    new SelectList(
-                        new[] { "Chờ", "Đã nhận", "Hủy" },
-                        currentStatus),
-                    "Tất cả trạng thái",
-                    new
+            @using (Html.BeginForm(
+                "Index",
+                "Reservations",
+                FormMethod.Get,
+                new { @class = "row g-3 align-items-end" }))
+            {
+                <div class="col-md-4">
+
+                    <label class="form-label">
+                        Tìm kiếm
+                    </label>
+
+                    @Html.TextBox("search", search, new
                     {
-                        @class = "form-select",
-                        aria_label = "Lọc trạng thái"
+                        @class = "form-control",
+                        placeholder = "Tên thành viên hoặc tên sách",
+                        aria_label = "Tìm thành viên hoặc sách"
                     })
-            </div>
 
-            <div class="col-md-2">
-                @Html.DropDownList(
-                    "sort",
-                    new SelectList(
-                        new[]
+                </div>
+
+                <div class="col-md-3">
+
+                    <label class="form-label">
+                        Trạng thái
+                    </label>
+
+                    @Html.DropDownList(
+                             "status",
+                             new SelectList(
+                                 new[] { "Chờ", "Đã nhận", "Hủy" },
+                                 currentStatus),
+                             "Tất cả trạng thái",
+                             new
+                             {
+                                 @class = "form-select",
+                                 aria_label = "Lọc trạng thái"
+                             })
+
+                </div>
+
+                <div class="col-md-2">
+
+                    <label class="form-label">
+                        Sắp xếp
+                    </label>
+
+                    @Html.DropDownList(
+                             "sort",
+                             new SelectList(
+                                 new[]
+                                 {
+                                new
+                                {
+                                    Value = "newest",
+                                    Text = "Mới nhất"
+                                },
+                                new
+                                {
+                                    Value = "oldest",
+                                    Text = "Cũ nhất"
+                                }
+                             },
+                                 "Value",
+                                 "Text",
+                                 sort),
+                             new
+                             {
+                                 @class = "form-select",
+                                 aria_label = "Sắp xếp ngày đặt"
+                             })
+
+                </div>
+
+                <div class="col-md-3">
+
+                    <div class="bn-actions">
+
+                        <button type="submit"
+                                class="bn-btn bn-btn--primary">
+                            Tìm kiếm
+                        </button>
+
+                        @Html.ActionLink(
+                                 "Bỏ lọc",
+                                 "Index",
+                                 null,
+                                 new { @class = "bn-btn bn-btn--edit" }
+                             )
+
+                    </div>
+
+                </div>
+            }
+
+        </div>
+    </div>
+
+    <!-- Tổng số yêu cầu đặt trước -->
+    <p class="mb-3">
+        Tổng số: <strong>@totalItems</strong> yêu cầu đặt trước
+    </p>
+
+    <!-- Bảng danh sách đặt trước -->
+    <div class="card shadow-sm">
+
+        <div class="card-body table-responsive">
+
+            <table class="table table-hover align-middle bn-table">
+
+                <thead class="table-light">
+                    <tr>
+                        <th>Thành viên</th>
+                        <th>Sách</th>
+                        <th>Ngày đặt</th>
+                        <th class="text-center">Trạng thái</th>
+                        <th class="text-center" style="min-width: 200px;">
+                            Thao tác
+                        </th>
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                    @if (Model == null || !Model.Any())
+                    {
+                        <tr>
+                            <td colspan="5"
+                                class="text-center text-muted py-4">
+
+                                Không tìm thấy yêu cầu đặt trước.
+
+                            </td>
+                        </tr>
+                    }
+                    else
+                    {
+                        foreach (var item in Model)
                         {
-                            new
-                            {
-                                Value = "newest",
-                                Text = "Mới nhất"
-                            },
-                            new
-                            {
-                                Value = "oldest",
-                                Text = "Cũ nhất"
-                            }
-                        },
-                        "Value",
-                        "Text",
-                        sort),
-                    new
+                            <tr>
+
+                                <td>
+                                    <strong>
+                                        @(item.Member != null
+                                            ? item.Member.FullName
+                                            : "Không có thông tin")
+                                    </strong>
+                                </td>
+
+                                <td>
+                                    @(item.Book != null
+                                        ? item.Book.Title
+                                        : "Không có thông tin")
+                                </td>
+
+                                <td>
+                                    @(item.ReserveDate.HasValue
+                                        ? item.ReserveDate.Value.ToString("dd/MM/yyyy")
+                                        : "Chưa có ngày")
+                                </td>
+
+                                <!-- Trạng thái đặt trước -->
+                                <td class="text-center">
+
+                                    @if (item.Status == "Chờ")
+                                    {
+                                        <span class="badge bg-warning text-dark">
+                                            Chờ
+                                        </span>
+                                    }
+                                    else if (item.Status == "Đã nhận")
+                                    {
+                                        <span class="badge bn-badge-ok bg-success text-white">
+                                            Đã nhận
+                                        </span>
+                                    }
+                                    else if (item.Status == "Hủy")
+                                    {
+                                        <span class="badge bn-badge-out bg-danger text-white">
+                                            Hủy
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-secondary text-white">
+                                            @(item.Status ?? "Chưa có trạng thái")
+                                        </span>
+                                    }
+
+                                </td>
+
+                                <!-- Các nút thao tác -->
+                                <td>
+
+                                    <div class="bn-actions justify-content-center">
+
+                                        @Html.ActionLink(
+                                                 "Chi tiết",
+                                                 "Details",
+                                                 new { id = item.ReserveID },
+                                                 new { @class = "bn-btn bn-btn--view" }
+                                             )
+
+                                        @Html.ActionLink(
+                                                 "Sửa",
+                                                 "Edit",
+                                                 new { id = item.ReserveID },
+                                                 new { @class = "bn-btn bn-btn--edit" }
+                                             )
+
+                                        @Html.ActionLink(
+                                                 "Xóa",
+                                                 "Delete",
+                                                 new { id = item.ReserveID },
+                                                 new { @class = "bn-btn bn-btn--delete" }
+                                             )
+
+                                    </div>
+
+                                </td>
+
+                            </tr>
+                        }
+                    }
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+    <!-- Thanh phân trang -->
+    @if (totalPages > 1)
+    {
+        <div class="text-center mt-4">
+
+            <p class="text-muted">
+                Trang @currentPage / @totalPages
+            </p>
+
+            <div class="bn-actions justify-content-center">
+
+                @if (currentPage > 1)
+                {
+                    @Html.ActionLink(
+                             "Trang trước",
+                             "Index",
+                             new
+                             {
+                                 page = currentPage - 1,
+                                 search = search,
+                                 status = currentStatus,
+                                 sort = sort
+                             },
+                             new { @class = "bn-btn bn-btn--edit" }
+                         )
+                }
+
+                @for (int i = 1; i <= totalPages; i++)
+                {
+                    if (i == currentPage)
                     {
-                        @class = "form-select",
-                        aria_label = "Sắp xếp ngày đặt"
-                    })
+                        <span class="bn-btn bn-btn--primary">
+                            @i
+                        </span>
+                    }
+                    else
+                    {
+                        @Html.ActionLink(
+                                 i.ToString(),
+                                 "Index",
+                                 new
+                                 {
+                                     page = i,
+                                     search = search,
+                                     status = currentStatus,
+                                     sort = sort
+                                 },
+                                 new { @class = "bn-btn bn-btn--view" }
+                             )
+                    }
+                }
+
+                @if (currentPage < totalPages)
+                {
+                    @Html.ActionLink(
+                             "Trang sau",
+                             "Index",
+                             new
+                             {
+                                 page = currentPage + 1,
+                                 search = search,
+                                 status = currentStatus,
+                                 sort = sort
+                             },
+                             new { @class = "bn-btn bn-btn--edit" }
+                         )
+                }
+
             </div>
 
-            <div class="col-md-2">
-                <button type="submit" class="btn btn-primary">
-                    Tìm kiếm
-                </button>
-
-                @Html.ActionLink("Bỏ lọc", "Index", null,
-                    new { @class = "btn btn-outline-secondary mt-1" })
-            </div>
         </div>
     }
+
 </div>
-
-<p>Tổng số: <strong>@totalItems</strong> yêu cầu</p>
-
-<div class="table-responsive">
-    <table class="table table-bordered table-hover bn-table">
-        <thead>
-            <tr>
-                <th>Thành viên</th>
-                <th>Sách</th>
-                <th>Ngày đặt</th>
-                <th>Trạng thái</th>
-                <th>Thao tác</th>
-            </tr>
-        </thead>
-
-        <tbody>
-            @if (!Model.Any())
-            {
-                <tr>
-                    <td colspan="5" class="text-center">
-                        Không tìm thấy yêu cầu đặt trước.
-                    </td>
-                </tr>
-            }
-            else
-            {
-                foreach (var item in Model)
-                {
-                    <tr>
-                        <td>
-                            @(item.Member != null
-                                ? item.Member.FullName
-                                : "Không có thông tin")
-                        </td>
-
-                        <td>
-                            @(item.Book != null
-                                ? item.Book.Title
-                                : "Không có thông tin")
-                        </td>
-
-                        <td>
-                            @(item.ReserveDate.HasValue
-                                ? item.ReserveDate.Value.ToString("dd/MM/yyyy")
-                                : "Chưa có ngày")
-                        </td>
-
-                        <td>
-                            @if (item.Status == "Chờ")
-                            {
-                                <span class="badge bg-warning text-dark">
-                                    Chờ
-                                </span>
-                            }
-                            else if (item.Status == "Đã nhận")
-                            {
-                                <span class="badge bg-success">
-                                    Đã nhận
-                                </span>
-                            }
-                            else if (item.Status == "Hủy")
-                            {
-                                <span class="badge bg-danger">
-                                    Hủy
-                                </span>
-                            }
-                            else
-                            {
-                                <span class="badge bg-secondary">
-                                    @(item.Status ?? "Chưa có trạng thái")
-                                </span>
-                            }
-                        </td>
-
-                        <td>
-                            @Html.ActionLink("Chi tiết", "Details",
-                                new { id = item.ReserveID },
-                                new { @class = "btn btn-sm btn-info" })
-
-                            @Html.ActionLink("Sửa", "Edit",
-                                new { id = item.ReserveID },
-                                new { @class = "btn btn-sm btn-warning" })
-
-                            @Html.ActionLink("Xóa", "Delete",
-                                new { id = item.ReserveID },
-                                new { @class = "btn btn-sm btn-danger" })
-                        </td>
-                    </tr>
-                }
-            }
-        </tbody>
-    </table>
-</div>
-
-@if (totalPages > 1)
-{
-    <div class="d-flex align-items-center gap-3 mt-3">
-        @if (currentPage > 1)
-        {
-            @Html.ActionLink("« Trước", "Index", new
-            {
-                page = currentPage - 1,
-                search = search,
-                status = currentStatus,
-                sort = sort
-            }, new { @class = "btn btn-outline-primary" })
-        }
-
-        <span>Trang @currentPage / @totalPages</span>
-
-        @if (currentPage < totalPages)
-        {
-            @Html.ActionLink("Sau »", "Index", new
-            {
-                page = currentPage + 1,
-                search = search,
-                status = currentStatus,
-                sort = sort
-            }, new { @class = "btn btn-outline-primary" })
-        }
-    </div>
-}

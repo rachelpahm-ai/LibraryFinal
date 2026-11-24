@@ -192,7 +192,8 @@
                 <h1>Quản lý thể loại</h1>
                 <p>Danh sách các thể loại sách hiện có trong hệ thống.</p>
             </div>
-            <a href="@Url.Action("Create", "Categories")" class="bn-btn">
+            <a href="@Url.Action("Create", "Categories")"
+               class="bn-btn bn-btn--primary">
                 + Thêm thể loại mới
             </a>
         </div>
@@ -231,49 +232,59 @@
         <div class="card border-0 shadow-sm rounded-3 overflow-hidden bg-white">
             <div class="card-body p-0">
                 <div class="table-responsive">
-                    <table class="table table-hover align-middle mb-0">
-                        <thead class="table-light">
-                            <tr>
-                                <th class="py-3 ps-4 text-secondary">Tên thể loại</th>
-                                <th class="py-3 text-center text-secondary">Số lượng sách</th>
-                                <th class="py-3 text-center text-secondary" style="width:280px;">Thao tác</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @if (categories.Count == 0)
-                            {
-                                <tr><td colspan="3" class="text-center text-muted py-4">Không tìm thấy thể loại phù hợp.</td></tr>
-                            }
-                            else
-                            {
-                                foreach (var item in categories)
-                                {
-                                    <tr>
-                                        <td class="ps-4 fw-bold">
-                                            <a href="@Url.Action("Details", "Categories", new { id = item.CategoryID })">
-                                                @item.CategoryName
-                                            </a>
-                                        </td>
-                                        <td class="text-center">
-                                            <span class="badge bg-light text-dark border px-3 py-2 rounded-pill fw-normal">
-                                                @(item.Books == null ? 0 : item.Books.Count) cuốn
-                                            </span>
-                                        </td>
-                                        <td class="text-center py-3">
-                                            <div class="d-flex flex-wrap gap-2 justify-content-center">
-                                                <a href="@Url.Action("Details", "Categories", new { id = item.CategoryID })"
-                                                   class="btn btn-sm btn-outline-primary">Xem sách</a>
-                                                <a href="@Url.Action("Edit", "Categories", new { id = item.CategoryID })"
-                                                   class="btn btn-sm btn-outline-secondary">Sửa</a>
-                                                <a href="@Url.Action("Delete", "Categories", new { id = item.CategoryID })"
-                                                   class="btn btn-sm btn-outline-danger">Xóa</a>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                }
-                            }
-                        </tbody>
-                    </table>
+<table class="table table-hover align-middle mb-0 bn-table">
+    <thead class="table-light">
+        <tr>
+            <th class="py-3 ps-4 text-secondary">Tên thể loại</th>
+            <th class="py-3 text-center text-secondary">Số lượng sách</th>
+            <th class="py-3 text-center text-secondary" style="width:280px;">Thao tác</th>
+        </tr>
+    </thead>
+    <tbody>
+        @if (categories.Count == 0)
+        {
+            <tr><td colspan="3" class="text-center text-muted py-4">Không tìm thấy thể loại phù hợp.</td></tr>
+        }
+        else
+        {
+            foreach (var item in categories)
+            {
+                <tr>
+                    <td class="ps-4 fw-bold">
+                        <a href="@Url.Action("Details", "Categories", new { id = item.CategoryID })">
+                            @item.CategoryName
+                        </a>
+                    </td>
+                    <td class="text-center">
+                        <span class="badge bg-light text-dark border px-3 py-2 rounded-pill fw-normal">
+                            @(item.Books == null ? 0 : item.Books.Count) cuốn
+                        </span>
+                    </td>
+                    <td class="text-center py-3">
+                        <div class="bn-actions justify-content-center">
+
+                            <a href="@Url.Action("Details", "Categories", new { id = item.CategoryID })"
+                               class="bn-btn bn-btn--view">
+                                Xem sách
+                            </a>
+
+                            <a href="@Url.Action("Edit", "Categories", new { id = item.CategoryID })"
+                               class="bn-btn bn-btn--edit">
+                                Sửa
+                            </a>
+
+                            <a href="@Url.Action("Delete", "Categories", new { id = item.CategoryID })"
+                               class="bn-btn bn-btn--delete">
+                                Xóa
+                            </a>
+
+                        </div>
+                    </td>
+                </tr>
+            }
+        }
+    </tbody>
+</table>
                 </div>
             </div>
         </div>

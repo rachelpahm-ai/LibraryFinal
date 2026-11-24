@@ -1,0 +1,189 @@
+﻿@model IEnumerable<Library.Models.Loan>
+@using System
+@using System.Linq
+
+@{
+    ViewBag.Title = "Lịch sử mượn sách";
+    Layout = "~/Views/Shared/LibraryLayout.cshtml";
+
+    bool isStaff = ViewBag.IsStaff == true;
+    string memberName = Convert.ToString(ViewBag.MemberName);
+}
+
+<div class="container-fluid mt-4">
+
+    <h2 class="mb-2">
+        @(isStaff
+            ? "Lịch sử mượn của thành viên"
+            : "Lịch sử mượn của tôi")
+    </h2>
+
+    <!-- Thông tin thành viên -->
+    <div class="card shadow-sm mb-4">
+        <div class="card-body">
+
+            <p class="text-muted mb-0">
+                Thành viên:
+                <strong class="text-dark">@memberName</strong>
+            </p>
+
+        </div>
+    </div>
+
+    @if (Model == null || !Model.Any())
+    {
+        <div class="card shadow-sm">
+            <div class="card-body text-center text-muted py-4">
+                Thành viên chưa có lịch sử mượn sách.
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="card shadow-sm">
+
+            <div class="card-body table-responsive">
+
+                <table class="table table-hover align-middle bn-table">
+
+                    <thead class="table-light">
+                        <tr>
+                            <th>Mã phiếu</th>
+                            <th>Ngày mượn</th>
+                            <th>Hạn trả</th>
+                            <th>Ngày trả thực tế</th>
+                            <th>Sách đã mượn</th>
+                            <th class="text-center">Trạng thái</th>
+                            <th class="text-end">Tiền phạt</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+
+                        @foreach (var loan in Model)
+                        {
+                            <tr>
+
+                                <!-- Mã phiếu -->
+                                <td>
+                                    <strong>#@loan.LoanID</strong>
+                                </td>
+
+                                <!-- Ngày mượn -->
+                                <td>
+                                    @loan.LoanDate.ToString("dd/MM/yyyy")
+                                </td>
+
+                                <!-- Hạn trả -->
+                                <td>
+                                    @loan.DueDate.ToString("dd/MM/yyyy")
+                                </td>
+
+                                <!-- Ngày trả thực tế -->
+                                <td>
+                                    @if (loan.ReturnDate.HasValue)
+                                    {
+                                        @loan.ReturnDate.Value.ToString("dd/MM/yyyy")
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted">
+                                            Chưa trả
+                                        </span>
+                                    }
+                                </td>
+
+                                <!-- Danh sách sách đã mượn -->
+                                <td>
+
+                                    @if (loan.LoanDetails != null &&
+                                         loan.LoanDetails.Any())
+                                    {
+                                        foreach (var detail in loan.LoanDetails)
+                                        {
+                                            <div class="mb-1">
+                                                @(detail.Book != null
+                                                    ? detail.Book.Title
+                                                    : "Sách không còn tồn tại")
+                                            </div>
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted">
+                                            Không có thông tin sách
+                                        </span>
+                                    }
+
+                                </td>
+
+                                <!-- Trạng thái -->
+                                <td class="text-center">
+
+                                    @if (loan.ReturnDate.HasValue)
+                                    {
+                                        <span class="badge bn-badge-ok bg-success text-white">
+                                            Đã trả
+                                        </span>
+                                    }
+                                    else if (loan.DueDate.Date < DateTime.Today)
+                                    {
+                                        <span class="badge bn-badge-out bg-danger text-white">
+                                            Quá hạn
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-warning text-dark">
+                                            Đang mượn
+                                        </span>
+                                    }
+
+                                </td>
+
+                                <!-- Tiền phạt -->
+                                <td class="text-end">
+
+                                    @if ((loan.TotalFine ?? 0m) > 0)
+                                    {
+                                        <strong class="text-danger">
+                                            @((loan.TotalFine ?? 0m).ToString("N0")) VNĐ
+                                        </strong>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted">
+                                            0 VNĐ
+                                        </span>
+                                    }
+
+                                </td>
+
+                            </tr>
+                        }
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+    }
+
+    <!-- Nút quay lại chỉ dành cho Admin / Thủ thư -->
+    @if (isStaff)
+    {
+        <div class="mt-4">
+
+            <a class="bn-btn bn-btn--edit"
+               href="@Url.Action("Index", "Members")">
+
+                ← Quay lại danh sách thành viên
+
+            </a>
+
+        </div>
+    }
+
+</div>
